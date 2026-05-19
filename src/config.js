@@ -1,0 +1,89 @@
+export const CANVAS_WIDTH = 640;
+export const CANVAS_HEIGHT = 480;
+
+export const palette = {
+  sky: "#17325c",
+  farSky: "#284e79",
+  ground: "#183326",
+  field: "#2f5b2f",
+  mountain: "#5d5d68",
+  snow: "#d8dce0",
+  runway: "#34383c",
+  bright: "#4ef07d",
+  dim: "#1e8f45",
+  amber: "#f2b84b",
+  cyan: "#56d7ff",
+  paper: "#e7dfc8",
+  red: "#ff5b55",
+  water: "#2d83b8",
+  town: "#b6a46d",
+  black: "#020403"
+};
+
+export const airports = [
+  { name: "HAYES", x: 0, z: 0, heading: 90, length: 2600, width: 150, elev: 0 },
+  { name: "NORTHRIDGE", x: 9200, z: -3900, heading: 90, length: 2300, width: 150, elev: 160 }
+];
+
+export const route = [
+  { name: "RIVER", x: 2500, z: -650, alt: 1300 },
+  { name: "TOWN", x: 5200, z: -2100, alt: 1800 },
+  { name: "FINAL", x: 6900, z: -3900, alt: 900 },
+  { name: "RWY 09", x: airports[1].x, z: airports[1].z, alt: airports[1].elev }
+];
+
+export const river = [
+  { x: -1500, z: 1100 },
+  { x: 900, z: 650 },
+  { x: 2600, z: -700 },
+  { x: 4300, z: -900 },
+  { x: 6200, z: -2300 },
+  { x: 8500, z: -3000 },
+  { x: 11100, z: -4700 }
+];
+
+export const towns = [
+  { name: "MILL", x: 1800, z: 900, size: 520 },
+  { name: "LAKE", x: 5150, z: -1900, size: 720 },
+  { name: "RIDGE", x: 8700, z: -4700, size: 620 }
+];
+
+export const mountains = [
+  { x: 4100, z: -4600, h: 1280, w: 950 },
+  { x: 5700, z: -5200, h: 1680, w: 1200 },
+  { x: 7700, z: -6100, h: 1360, w: 1000 },
+  { x: 9600, z: -6800, h: 1500, w: 1250 }
+];
+
+export const trees = Array.from({ length: 90 }, (_, index) => {
+  const x = -800 + (index * 347) % 11500;
+  const z = 1500 - (index * 619) % 8200;
+  return { x, z, h: 65 + (index % 5) * 12 };
+}).filter((tree) => Math.abs(tree.z) > 260 || tree.x < -1000 || tree.x > 11000);
+
+export const helpText = {
+  preflight: ["Flaps F to 15.", "Keep gear down.", "Throttle A to 100% and hold runway heading 090."],
+  takeoff: ["At 55-60 kt, ease nose up with Down Arrow.", "Flaps 15 will help the aircraft fly off.", "Climb through 300 ft before raising gear."],
+  climb: ["Gear up with G.", "Flaps F to 0 above 500 ft.", "Climb to about 1600 ft and steer to the map arrow."],
+  cruise: ["Follow the cyan bearing pointer and map route.", "Keep speed 105-145 kt.", "Stay above terrain and below 2500 ft."],
+  approach: ["Descend toward FINAL at 900 ft.", "Set throttle near 45%.", "Line up with runway 09."],
+  landing: ["Gear down, flaps 30.", "Aim for 85-105 kt.", "Touch down gently on the runway with wings level."],
+  ended: ["Press R to reset.", "Score rewards centerline, sink rate, speed, and correct configuration."]
+};
+
+export const initialInstruction = "HAYES runway 09. Set flaps 15, gear down, then full throttle for takeoff.";
+
+export const handledKeys = new Set([
+  "arrowleft",
+  "arrowright",
+  "arrowup",
+  "arrowdown",
+  "a",
+  "z",
+  "f",
+  "g",
+  "h",
+  "r",
+  " ",
+  "escape"
+]);

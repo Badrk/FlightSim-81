@@ -8,7 +8,7 @@ The simulator is intentionally simple and chunky, but it includes enough flight 
 
 ## Play
 
-Open `index.html` in a web browser, or run a local static server:
+Run a local static server from the project folder:
 
 ```bash
 python3 -m http.server 4173
@@ -126,5 +126,6 @@ The route includes mountains, trees, towns, and a river. The moving map shows th
 | --- | --- |
 | `index.html` | Browser UI, cockpit panel, and help modal |
 | `style.css` | Retro cockpit layout and visual styling |
-| `game.js` | Flight model, drawing, instruments, route, audio, and game state |
+| `src/` | Flight model, drawing, instruments, route, audio, UI, and game state |
+| `package.json` | Project metadata and syntax-check script |
 | `assets/Flight-Sim-81.png` | README screenshot |
