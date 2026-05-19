@@ -1,4 +1,4 @@
-import { clamp } from "./math.js";
+import { clamp } from "./math.js?v=1.5.1";
 
 export function createAudioController() {
   let audio = null;

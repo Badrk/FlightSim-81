@@ -1,6 +1,6 @@
 # FS-81
 
-Current version: **v1.4**
+Current version: **v1.5.1**
 
 FS-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
 

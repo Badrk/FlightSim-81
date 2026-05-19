@@ -1,6 +1,6 @@
-import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, mountains, palette, river, route, towns, trees } from "./config.js";
-import { bearingToWaypoint } from "./flight.js";
-import { clamp, distance, signedAngle } from "./math.js";
+import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.1";
+import { bearingToWaypoint } from "./flight.js?v=1.5.1";
+import { clamp, distance, signedAngle } from "./math.js?v=1.5.1";
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext("2d");
@@ -72,11 +72,7 @@ function drawWorld(ctx, state) {
   ctx.rotate(-state.plane.bank * Math.PI / 180);
   ctx.translate(-W / 2, -H / 2);
 
-  const fillMargin = Math.hypot(W, H);
-  ctx.fillStyle = palette.farSky;
-  ctx.fillRect(-fillMargin, -fillMargin, W + fillMargin * 2, horizonY + fillMargin);
-  ctx.fillStyle = palette.ground;
-  ctx.fillRect(-fillMargin, horizonY, W + fillMargin * 2, H - horizonY + fillMargin);
+  drawMovingBackdrop(ctx, state, horizonY);
 
   ctx.strokeStyle = palette.cyan;
   ctx.lineWidth = 2;
@@ -98,6 +94,46 @@ function drawWorld(ctx, state) {
   drawLine3d(ctx, state, { x: state.plane.x, y: state.plane.altitude - 40, z: state.plane.z }, { x: waypoint.x, y: waypoint.alt, z: waypoint.z }, palette.cyan, 1);
 
   ctx.restore();
+}
+
+function drawMovingBackdrop(ctx, state, horizonY) {
+  const { plane } = state;
+  const fillMargin = Math.hypot(W, H);
+  const left = -fillMargin;
+  const width = W + fillMargin * 2;
+  const forward = plane.x * Math.sin(plane.heading * Math.PI / 180) - plane.z * Math.cos(plane.heading * Math.PI / 180);
+  const side = plane.x * Math.cos(plane.heading * Math.PI / 180) + plane.z * Math.sin(plane.heading * Math.PI / 180);
+  const skyShift = ((side * 0.015) % 42 + 42) % 42;
+  const groundShift = ((forward * 0.045 + plane.altitude * 0.08) % 48 + 48) % 48;
+
+  ctx.fillStyle = palette.farSky;
+  ctx.fillRect(left, -fillMargin, width, horizonY + fillMargin);
+  ctx.fillStyle = palette.ground;
+  ctx.fillRect(left, horizonY, width, H - horizonY + fillMargin);
+
+  ctx.fillStyle = "rgba(86, 215, 255, 0.09)";
+  for (let y = horizonY - fillMargin + skyShift; y < horizonY; y += 42) {
+    ctx.fillRect(left, y, width, 2);
+  }
+
+  ctx.strokeStyle = "rgba(78, 240, 125, 0.18)";
+  ctx.lineWidth = 1;
+  for (let y = horizonY + groundShift; y < H + fillMargin; y += 48) {
+    const spread = (y - horizonY) * 0.75;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - spread, y);
+    ctx.lineTo(W / 2 + spread, y);
+    ctx.stroke();
+  }
+
+  const lateralShift = ((side * 0.035) % 96 + 96) % 96;
+  ctx.strokeStyle = "rgba(30, 143, 69, 0.28)";
+  for (let x = -fillMargin - lateralShift; x < W + fillMargin; x += 96) {
+    ctx.beginPath();
+    ctx.moveTo(W / 2, horizonY);
+    ctx.lineTo(x, H + fillMargin);
+    ctx.stroke();
+  }
 }
 
 function drawRunway(ctx, state, airport) {

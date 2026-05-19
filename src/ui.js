@@ -1,6 +1,6 @@
-import { handledKeys, helpText } from "./config.js";
-import { setMessage } from "./flight.js";
-import { resetGameState } from "./state.js";
+import { handledKeys, helpText } from "./config.js?v=1.5.1";
+import { setMessage } from "./flight.js?v=1.5.1";
+import { resetGameState } from "./state.js?v=1.5.1";
 
 export function createInput() {
   return {
