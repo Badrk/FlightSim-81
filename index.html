@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IFR-81 Flight</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="cockpit" aria-label="IFR-81 browser flight simulator">
+      <section class="screen-wrap">
+        <canvas id="game" width="640" height="480" aria-label="Flight simulator display"></canvas>
+      </section>
+      <aside class="panel">
+        <div>
+          <p class="title-line">IFR-81 - Cross Country</p>
+        </div>
+        <div class="mission">
+          <span id="status">Run pre-takeoff checks.</span>
+        </div>
+        <button class="help-panel" id="helpButton" type="button" aria-label="Open instrument help">
+          <p class="label">Help</p>
+          <h2 id="phase">Preflight</h2>
+          <ol id="help">
+            <li>Set flaps 15.</li>
+            <li>Gear down.</li>
+            <li>Throttle to 100%.</li>
+          </ol>
+        </button>
+        <div class="keys" aria-label="Controls">
+          <kbd>←</kbd><span>Bank left</span>
+          <kbd>→</kbd><span>Bank right</span>
+          <kbd>↑</kbd><span>Nose down</span>
+          <kbd>↓</kbd><span>Nose up</span>
+          <kbd>A</kbd><span>Throttle up</span>
+          <kbd>Z</kbd><span>Throttle down</span>
+          <kbd>F</kbd><span>Flaps 0/15/30</span>
+          <kbd>G</kbd><span>Gear up/down</span>
+          <kbd>H</kbd><span>Help / pause</span>
+          <kbd>R</kbd><span>Reset</span>
+        </div>
+      </aside>
+    </main>
+    <div class="modal" id="helpModal" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2 id="helpTitle">Cockpit Help</h2>
+          <button id="closeHelp" type="button" aria-label="Close help">×</button>
+        </div>
+        <div class="modal-grid">
+          <section>
+            <h3>Primary Dials</h3>
+            <p><strong>ASI</strong> is airspeed in knots. Rotate at about 55-60 kt; approach at 85-105 kt.</p>
+            <p><strong>ALT</strong> is altitude above sea level. Cruise near 1600 ft and descend toward FINAL at 900 ft.</p>
+            <p><strong>VSI</strong> is vertical speed. Positive climbs, negative descends. Keep touchdown sink gentle.</p>
+            <p><strong>THR</strong> is throttle percent. Use full power for takeoff, lower power to descend.</p>
+            <p><strong>FUEL</strong> is remaining fuel.</p>
+          </section>
+          <section>
+            <h3>Attitude And Navigation</h3>
+            <p><strong>HOR</strong> is the artificial horizon. Blue over green means level; the line tilts with bank and moves with pitch.</p>
+            <p><strong>COMP</strong> is the compass. The number is your heading; the cyan needle points toward the next waypoint.</p>
+            <p><strong>Map</strong> shows your aircraft, the river, airports, and the route. Follow the cyan line to the active waypoint.</p>
+            <p><strong>Right strip</strong> is a course/altitude cue. Keep cyan near center for bearing; amber near center for target altitude.</p>
+          </section>
+          <section>
+            <h3>Flight Controls</h3>
+            <p><strong>Arrows</strong> bank and pitch. Up arrow lowers the nose; Down arrow raises it.</p>
+            <p><strong>A/Z</strong> increase/decrease throttle.</p>
+            <p><strong>F</strong> cycles flaps 0, 15, 30. Use 15 for takeoff and 30 for landing.</p>
+            <p><strong>G</strong> raises/lowers landing gear once airborne. Gear must be down for landing.</p>
+          </section>
+        </div>
+        <p class="modal-foot">Press H, Escape, or Close to resume.</p>
+      </div>
+    </div>
+    <script src="game.js"></script>
+  </body>
+</html>
