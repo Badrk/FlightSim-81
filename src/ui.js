@@ -1,6 +1,6 @@
-import { handledKeys, helpText } from "./config.js?v=1.5.1";
-import { setMessage } from "./flight.js?v=1.5.1";
-import { resetGameState } from "./state.js?v=1.5.1";
+import { handledKeys, helpText } from "./config.js?v=1.5.2";
+import { setMessage } from "./flight.js?v=1.5.2";
+import { resetGameState } from "./state.js?v=1.5.2";
 
 export function createInput() {
   return {
@@ -212,6 +212,7 @@ export function createUi(state, input, audio) {
   bindToggle(elements.soundToggle, () => {
     state.soundEnabled = !state.soundEnabled;
     if (state.soundEnabled) audio.resume();
+    else audio.stop();
   });
   bindToggle(elements.mapModeToggle, () => {
     state.mapNorthUp = !state.mapNorthUp;

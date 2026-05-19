@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=1.5.1";
+import { clamp } from "./math.js?v=1.5.2";
 
 export function createAudioController() {
   let audio = null;
@@ -63,7 +63,7 @@ export function createAudioController() {
     audio.engine.frequency.setTargetAtTime(42 + power * 78 + motion * 18, now, 0.08);
     audio.growl.frequency.setTargetAtTime(20 + power * 26, now, 0.1);
     audio.filter.frequency.setTargetAtTime(260 + power * 820, now, 0.12);
-    audio.master.gain.setTargetAtTime(0.018 + power * 0.09 + motion * 0.025, now, 0.08);
+    audio.master.gain.setTargetAtTime(active ? 0.018 + power * 0.09 + motion * 0.025 : 0, now, 0.03);
     audio.warningGain.gain.setTargetAtTime(warning, now, 0.03);
   }
 
