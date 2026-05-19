@@ -1,6 +1,6 @@
-import { airports, initialInstruction, route } from "./config.js?v=1.5.2";
-import { bearingBetween, clamp, distance, signedAngle, wrapDeg } from "./math.js?v=1.5.2";
-import { groundAltitudeAt, isOnRunway, runwayLocal, terrainHeight } from "./world.js?v=1.5.2";
+import { airports, initialInstruction, route } from "./config.js?v=1.5.3";
+import { bearingBetween, clamp, distance, signedAngle, wrapDeg } from "./math.js?v=1.5.3";
+import { groundAltitudeAt, isOnRunway, runwayLocal, terrainHeight } from "./world.js?v=1.5.3";
 
 const autopilotPath = [airports[0], ...route];
 
@@ -339,8 +339,8 @@ function updateAdvisory(state, dt) {
   else if (state.phase === "climb" && !plane.gearDown && plane.flaps === 0) setMessage(state, "Clean climb. Follow the cyan bearing pointer.");
   else if (state.phase === "climb") setMessage(state, "Raise gear above 300 ft and retract flaps above 500 ft.");
   else if (state.phase === "cruise" && Math.abs(err) > 10) setMessage(state, err > 0 ? "Turn right toward the waypoint." : "Turn left toward the waypoint.");
-  else if (state.phase === "approach") setMessage(state, `Airport ${Math.round(dme)} m. Descend, line up runway 09.`);
-  else if (state.phase === "landing") setMessage(state, "Landing checks: gear down, flaps 30, throttle 35-50%, wings level.");
+  else if (state.phase === "approach") setMessage(state, `Airport ${Math.round(dme)} m. Descend for runway 09, elevation 160 ft.`);
+  else if (state.phase === "landing") setMessage(state, "Landing checks: gear down, flaps 30, runway elevation 160 ft.");
   else if (state.phase === "rollout") setMessage(state, "Rolling out. Keep straight until the aircraft slows.");
   else if (plane.stall) setMessage(state, "Stall warning. Nose down or add power.");
   else setMessage(state, `Next ${waypoint.name}. Bearing ${String(Math.round(desired)).padStart(3, "0")}.`);

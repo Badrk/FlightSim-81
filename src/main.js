@@ -1,9 +1,9 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./config.js?v=1.5.2";
-import { createAudioController } from "./audio.js?v=1.5.2";
-import { updateFlight } from "./flight.js?v=1.5.2";
-import { createRenderer } from "./renderer.js?v=1.5.2";
-import { createGameState } from "./state.js?v=1.5.2";
-import { createInput, createUi } from "./ui.js?v=1.5.2";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./config.js?v=1.5.3";
+import { createAudioController } from "./audio.js?v=1.5.3";
+import { updateFlight } from "./flight.js?v=1.5.3";
+import { createRenderer } from "./renderer.js?v=1.5.3";
+import { createGameState } from "./state.js?v=1.5.3";
+import { createInput, createUi } from "./ui.js?v=1.5.3";
 
 const canvas = document.getElementById("game");
 canvas.width = CANVAS_WIDTH;

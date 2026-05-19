@@ -1,6 +1,6 @@
 # FS-81
 
-Current version: **v1.5.2**
+Current version: **v1.5.3**
 
 FS-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
 
@@ -56,7 +56,7 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **ASI** is airspeed in knots. Rotate at about 55-60 kt; approach at 85-105 kt.
 
-**ALT** is altitude above sea level. Cruise near 1600 ft and descend toward FINAL at 900 ft.
+**ALT** is altitude above sea level. Cruise near 1600 ft, descend toward FINAL at 900 ft, and expect NORTHRIDGE runway elevation at 160 ft.
 
 **VSI** is vertical speed. Positive climbs, negative descends. Keep touchdown sink gentle.
 
@@ -121,14 +121,14 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 ### Approach
 
 1. Descend toward FINAL at 900 ft.
-2. Set throttle near 45%.
-3. Line up with runway 09.
+2. NORTHRIDGE runway elevation is 160 ft.
+3. Set throttle near 45% and line up runway 09.
 
 ### Landing
 
 1. Gear down, flaps 30.
 2. Aim for 85-105 kt.
-3. Touch down gently on the runway with wings level.
+3. Touch down gently at 160 ft field elevation.
 
 ### Ended
 

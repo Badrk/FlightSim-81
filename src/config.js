@@ -39,6 +39,7 @@ export const river = [
   { x: 4300, z: -900 },
   { x: 6200, z: -2300 },
   { x: 8500, z: -3000 },
+  { x: 10450, z: -3000 },
   { x: 11100, z: -4700 }
 ];
 
@@ -66,8 +67,8 @@ export const helpText = {
   takeoff: ["At 55-60 kt, ease nose up with Down Arrow.", "Flaps 15 will help the aircraft fly off.", "Climb through 300 ft before raising gear."],
   climb: ["Gear up with G.", "Flaps F to 0 above 500 ft.", "Climb to about 1600 ft and steer to the map arrow."],
   cruise: ["Follow the cyan bearing pointer and map route.", "Keep speed 105-145 kt.", "Stay above terrain and below 2500 ft."],
-  approach: ["Descend toward FINAL at 900 ft.", "Set throttle near 45%.", "Line up with runway 09."],
-  landing: ["Gear down, flaps 30.", "Aim for 85-105 kt.", "Touch down gently on the runway with wings level."],
+  approach: ["Descend toward FINAL at 900 ft.", "NORTHRIDGE runway elevation is 160 ft.", "Set throttle near 45% and line up runway 09."],
+  landing: ["Gear down, flaps 30.", "Aim for 85-105 kt.", "Touch down gently at 160 ft field elevation."],
   rollout: ["Keep rolling straight down the runway.", "Throttle idle.", "Wait for the aircraft to slow."],
   ended: ["Press R to reset.", "Score rewards centerline, sink rate, speed, and correct configuration."]
 };

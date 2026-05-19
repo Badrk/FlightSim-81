@@ -1,6 +1,6 @@
-import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.2";
-import { bearingToWaypoint } from "./flight.js?v=1.5.2";
-import { clamp, distance, signedAngle } from "./math.js?v=1.5.2";
+import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.3";
+import { bearingToWaypoint } from "./flight.js?v=1.5.3";
+import { clamp, distance, signedAngle } from "./math.js?v=1.5.3";
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext("2d");
