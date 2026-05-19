@@ -90,14 +90,13 @@ export function createUi(state, input, audio) {
   }
 
   function pressControl(button, event) {
-    event.preventDefault();
     const key = button.dataset.key;
-    if (isHoldControl(key) && !state.paused) {
-      audio.resume();
-      input.keys.add(key);
-      button.classList.add("is-active");
-      if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
-    }
+    if (!isHoldControl(key) || state.paused) return;
+    if (event.cancelable) event.preventDefault();
+    audio.resume();
+    input.keys.add(key);
+    button.classList.add("is-active");
+    if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
   }
 
   function releaseControl(button, event) {
@@ -112,6 +111,15 @@ export function createUi(state, input, audio) {
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
   window.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("mouseup", () => {
+    for (const button of elements.controls) releaseControl(button, {});
+  });
+  window.addEventListener("touchend", () => {
+    for (const button of elements.controls) releaseControl(button, {});
+  });
+  window.addEventListener("touchcancel", () => {
+    for (const button of elements.controls) releaseControl(button, {});
+  });
   elements.helpButton.addEventListener("click", toggleHelp);
   elements.closeHelp.addEventListener("click", () => setPaused(false));
   elements.helpModal.addEventListener("click", (event) => {
@@ -121,6 +129,8 @@ export function createUi(state, input, audio) {
     button.addEventListener("pointerdown", (event) => pressControl(button, event));
     button.addEventListener("pointerup", (event) => releaseControl(button, event));
     button.addEventListener("pointercancel", (event) => releaseControl(button, event));
+    button.addEventListener("mousedown", (event) => pressControl(button, event));
+    button.addEventListener("touchstart", (event) => pressControl(button, event), { passive: false });
     button.addEventListener("lostpointercapture", () => {
       input.keys.delete(button.dataset.key);
       button.classList.remove("is-active");
