@@ -16,8 +16,12 @@ export function createUi(state, input, audio) {
     helpButton: document.getElementById("helpButton"),
     helpModal: document.getElementById("helpModal"),
     closeHelp: document.getElementById("closeHelp"),
+    autopilotToggle: document.getElementById("autopilotToggle"),
+    soundToggle: document.getElementById("soundToggle"),
+    mapModeToggle: document.getElementById("mapModeToggle"),
     controls: Array.from(document.querySelectorAll("[data-key]"))
   };
+  document.body.classList.toggle("touch-layout", navigator.maxTouchPoints > 0);
 
   function setPaused(next) {
     state.paused = next;
@@ -55,6 +59,12 @@ export function createUi(state, input, audio) {
     elements.status.textContent = state.message;
     elements.phase.textContent = state.phase.charAt(0).toUpperCase() + state.phase.slice(1);
     elements.help.innerHTML = helpText[state.phase].map((item) => `<li>${item}</li>`).join("");
+    elements.autopilotToggle.setAttribute("aria-pressed", String(state.autopilot));
+    elements.soundToggle.setAttribute("aria-pressed", String(state.soundEnabled));
+    elements.mapModeToggle.setAttribute("aria-pressed", String(state.mapNorthUp));
+    elements.autopilotToggle.textContent = state.autopilot ? "AP✓" : "AP";
+    elements.soundToggle.textContent = state.soundEnabled ? "SND" : "MUTE";
+    elements.mapModeToggle.textContent = state.mapNorthUp ? "N↑" : "HDG↑";
   }
 
   function onKeyDown(event) {
@@ -124,6 +134,17 @@ export function createUi(state, input, audio) {
   elements.closeHelp.addEventListener("click", () => setPaused(false));
   elements.helpModal.addEventListener("click", (event) => {
     if (event.target === elements.helpModal) setPaused(false);
+  });
+  elements.autopilotToggle.addEventListener("click", () => {
+    state.autopilot = !state.autopilot;
+    input.keys.clear();
+  });
+  elements.soundToggle.addEventListener("click", () => {
+    state.soundEnabled = !state.soundEnabled;
+    if (state.soundEnabled) audio.resume();
+  });
+  elements.mapModeToggle.addEventListener("click", () => {
+    state.mapNorthUp = !state.mapNorthUp;
   });
   for (const button of elements.controls) {
     button.addEventListener("pointerdown", (event) => pressControl(button, event));

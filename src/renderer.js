@@ -207,6 +207,9 @@ function drawInstrument(ctx, cx, cy, r, label, value, min, max, color, formatter
 
 function drawHorizon(ctx, plane, cx, cy, r) {
   ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
+  ctx.clip();
   ctx.translate(cx, cy);
   ctx.rotate(-plane.bank * Math.PI / 180);
   const offset = clamp(plane.pitch * 1.3, -r + 8, r - 8);
@@ -286,16 +289,41 @@ function mapPoint(x, z, box) {
   };
 }
 
-function drawMap(ctx, plane) {
+function mapHeadingPoint(state, x, z, box) {
+  const { plane } = state;
+  const relX = x - plane.x;
+  const relZ = z - plane.z;
+  const headingRad = plane.heading * Math.PI / 180;
+  const rightX = Math.cos(headingRad);
+  const rightZ = Math.sin(headingRad);
+  const forwardX = Math.sin(headingRad);
+  const forwardZ = -Math.cos(headingRad);
+  const scale = box.w / 6800;
+  return {
+    x: box.x + box.w / 2 + (relX * rightX + relZ * rightZ) * scale,
+    y: box.y + box.h / 2 - (relX * forwardX + relZ * forwardZ) * scale
+  };
+}
+
+function mapDisplayPoint(state, x, z, box) {
+  return state.mapNorthUp ? mapPoint(x, z, box) : mapHeadingPoint(state, x, z, box);
+}
+
+function drawMap(ctx, state) {
+  const { plane } = state;
   const box = { x: W - 148, y: 18, w: 128, h: 100 };
   ctx.fillStyle = "rgba(2, 4, 3, 0.82)";
   ctx.fillRect(box.x, box.y, box.w, box.h);
   ctx.strokeStyle = palette.bright;
   ctx.strokeRect(box.x, box.y, box.w, box.h);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(box.x, box.y, box.w, box.h);
+  ctx.clip();
   ctx.strokeStyle = palette.water;
   ctx.beginPath();
   river.forEach((point, index) => {
-    const q = mapPoint(point.x, point.z, box);
+    const q = mapDisplayPoint(state, point.x, point.z, box);
     if (index === 0) ctx.moveTo(q.x, q.y);
     else ctx.lineTo(q.x, q.y);
   });
@@ -303,26 +331,37 @@ function drawMap(ctx, plane) {
   ctx.strokeStyle = palette.dim;
   ctx.beginPath();
   route.forEach((point, index) => {
-    const q = mapPoint(point.x, point.z, box);
+    const q = mapDisplayPoint(state, point.x, point.z, box);
     if (index === 0) ctx.moveTo(q.x, q.y);
     else ctx.lineTo(q.x, q.y);
   });
   ctx.stroke();
   for (const airport of airports) {
-    const q = mapPoint(airport.x, airport.z, box);
+    const q = mapDisplayPoint(state, airport.x, airport.z, box);
     ctx.fillStyle = palette.amber;
     ctx.fillRect(q.x - 3, q.y - 3, 6, 6);
   }
-  const p = mapPoint(plane.x, plane.z, box);
+  const p = mapDisplayPoint(state, plane.x, plane.z, box);
+  const waypoint = mapDisplayPoint(state, route[state.activeWaypoint].x, route[state.activeWaypoint].z, box);
+  ctx.strokeStyle = palette.cyan;
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(waypoint.x, waypoint.y);
+  ctx.stroke();
   ctx.fillStyle = palette.cyan;
   ctx.beginPath();
   ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = palette.bright;
+  ctx.font = "9px monospace";
+  ctx.textAlign = "right";
+  ctx.fillText(state.mapNorthUp ? "N" : "HDG", box.x + box.w - 5, box.y + 12);
 }
 
 function drawHud(ctx, state) {
   const { plane } = state;
-  drawMap(ctx, plane);
+  drawMap(ctx, state);
   ctx.fillStyle = "rgba(2, 4, 3, 0.8)";
   ctx.fillRect(0, H - 138, W, 138);
   ctx.strokeStyle = palette.bright;

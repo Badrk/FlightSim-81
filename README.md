@@ -1,5 +1,7 @@
 # FS-81
 
+Current version: **v1.2**
+
 FS-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
 
 The simulator is intentionally simple and chunky, but it includes enough flight behavior to feel like a simulator rather than an arcade sprite game: pitch, bank, throttle, speed, lift, drag, vertical speed, stalls, landing gear, flaps, fuel, terrain clearance, route navigation, and touchdown scoring.
@@ -44,6 +46,9 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 | G | Gear up / down |
 | H | Help / pause |
 | R | Reset |
+| AP | Toggle autopilot |
+| SND | Toggle sound |
+| N↑ / HDG↑ | Toggle map north-up / heading-up |
 
 ## Cockpit Help
 
@@ -67,6 +72,8 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **Map** shows your aircraft, the river, airports, and the route. Follow the cyan line to the active waypoint.
 
+**N↑/HDG↑** switches the map between north-up and heading-up orientation.
+
 **Right strip** is a course/altitude cue. Keep cyan near center for bearing; amber near center for target altitude.
 
 ### Flight Controls
@@ -78,6 +85,10 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 **F** cycles flaps 0, 15, 30. Use 15 for takeoff and 30 for landing.
 
 **G** raises/lowers landing gear once airborne. Gear must be down for landing.
+
+**AP** toggles autopilot. When on, it flies the route and lands at NORTHRIDGE.
+
+**SND** toggles engine and warning audio.
 
 ## In-Flight Guidance
 

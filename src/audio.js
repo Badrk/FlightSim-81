@@ -54,10 +54,11 @@ export function createAudioController() {
     if (!audio) return;
     const { plane, paused, phase } = state;
     const now = audio.context.currentTime;
-    const power = plane.state === "flying" && !paused ? plane.throttle / 100 : 0;
-    const motion = plane.state === "flying" && !paused ? clamp(plane.speed / 130, 0, 1) : 0;
+    const active = plane.state === "flying" && !paused && state.soundEnabled;
+    const power = active ? plane.throttle / 100 : 0;
+    const motion = active ? clamp(plane.speed / 130, 0, 1) : 0;
     const configWarning = phase === "landing" && (!plane.gearDown || plane.flaps !== 30);
-    const warning = plane.state === "flying" && !paused && (plane.stall || configWarning) ? 0.035 : 0;
+    const warning = active && (plane.stall || configWarning) ? 0.035 : 0;
 
     audio.engine.frequency.setTargetAtTime(42 + power * 78 + motion * 18, now, 0.08);
     audio.growl.frequency.setTargetAtTime(20 + power * 26, now, 0.1);

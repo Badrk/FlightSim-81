@@ -30,10 +30,17 @@ export function createGameState() {
     activeWaypoint: 0,
     message: initialInstruction,
     messageTimer: 3.8,
-    paused: false
+    paused: false,
+    autopilot: false,
+    soundEnabled: true,
+    mapNorthUp: true
   };
 }
 
 export function resetGameState(state) {
-  Object.assign(state, createGameState());
+  const preferences = {
+    soundEnabled: state.soundEnabled,
+    mapNorthUp: state.mapNorthUp
+  };
+  Object.assign(state, createGameState(), preferences);
 }

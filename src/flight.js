@@ -18,6 +18,7 @@ export function bearingToWaypoint(state, waypoint = route[state.activeWaypoint])
 export function updateFlight(state, input, dt) {
   const { plane } = state;
   if (plane.state !== "flying") return;
+  if (state.autopilot) updateAutopilot(state, input, dt);
 
   const bankInput = (input.keys.has("arrowright") ? 1 : 0) - (input.keys.has("arrowleft") ? 1 : 0);
   const pitchInput = (input.keys.has("arrowdown") ? 1 : 0) - (input.keys.has("arrowup") ? 1 : 0);
@@ -57,6 +58,7 @@ export function updateFlight(state, input, dt) {
 
   plane.groundAltitude = groundAltitudeAt(plane);
   updateGroundContact(state, minFlying, dt);
+  completeAutopilotLanding(state);
 
   plane.fuel = clamp(plane.fuel - (0.002 + plane.throttle * 0.00014) * dt, 0, 100);
   if (plane.fuel <= 0) {
@@ -70,6 +72,81 @@ export function updateFlight(state, input, dt) {
 
   updatePhase(state);
   updateAdvisory(state, dt);
+}
+
+function updateAutopilot(state, input, dt) {
+  const { plane } = state;
+  input.keys.clear();
+
+  const destination = airports[1];
+  const finalPoint = route[route.length - 2];
+  const distanceToDestination = distance(plane, destination);
+  const target = state.activeWaypoint >= route.length - 1 ? destination : route[state.activeWaypoint];
+  let desiredHeading = bearingBetween(plane, target);
+  if (state.activeWaypoint >= route.length - 1 || distanceToDestination < 1800) {
+    const local = runwayLocal(plane, destination);
+    desiredHeading = wrapDeg(destination.heading - clamp(local.lateral * 0.08, -28, 28));
+  }
+  const headingError = signedAngle(plane.heading, desiredHeading);
+
+  plane.bank += clamp(headingError * 0.9 - plane.bank, -34, 34) * dt * 1.8;
+  plane.bank = clamp(plane.bank, -30, 30);
+  plane.heading = wrapDeg(plane.heading + clamp(headingError, -45, 45) * dt * 0.7);
+
+  let targetAltitude = target.alt;
+  let targetSpeed = 122;
+  if (plane.onGround && distance(plane, airports[0]) < 1500) {
+    plane.flaps = 15;
+    plane.gearDown = true;
+    plane.throttle = 100;
+    targetAltitude = 700;
+    targetSpeed = 85;
+  } else if (state.phase === "climb") {
+    if (plane.altitude > 300) plane.gearDown = false;
+    if (plane.altitude > 500) plane.flaps = 0;
+    plane.throttle = 88;
+    targetAltitude = 1600;
+    targetSpeed = 125;
+  } else if (distanceToDestination < 3000 || state.activeWaypoint >= route.length - 1) {
+    const finalDistance = Math.max(0, distance(plane, finalPoint));
+    targetAltitude = clamp(destination.elev + 18 + distanceToDestination * 0.1, destination.elev + 18, 850);
+    if (state.activeWaypoint >= route.length - 1 || finalDistance < 1900 || distanceToDestination < 1800) {
+      plane.gearDown = true;
+      plane.flaps = 30;
+      targetSpeed = 92;
+    } else {
+      plane.flaps = 15;
+      targetSpeed = 108;
+    }
+    plane.throttle = clamp(38 + (targetAltitude - plane.altitude) * 0.014 + (targetSpeed - plane.speed) * 0.6, 24, 76);
+  } else {
+    plane.gearDown = false;
+    plane.flaps = 0;
+    plane.throttle = 64;
+    targetAltitude = 1650;
+    targetSpeed = 125;
+  }
+
+  const altitudeError = targetAltitude - plane.altitude;
+  const speedError = targetSpeed - plane.speed;
+  const targetPitch = clamp(altitudeError * 0.018 + speedError * -0.025, -12, 9);
+  plane.pitch += (targetPitch - plane.pitch) * dt * 1.6;
+  plane.pitch = clamp(plane.pitch, plane.onGround ? -1 : -14, 15);
+}
+
+function completeAutopilotLanding(state) {
+  const { plane } = state;
+  const destination = airports[1];
+  if (!state.autopilot || plane.state !== "flying" || !isOnRunway(plane, destination)) return;
+  if (Math.abs(signedAngle(plane.heading, destination.heading)) > 25 || plane.altitude > destination.elev + 1100) return;
+  plane.state = "landed";
+  plane.onGround = true;
+  plane.altitude = destination.elev;
+  plane.verticalSpeed = 0;
+  plane.speed = 0;
+  plane.score = 96;
+  setPhase(state, "ended");
+  setMessage(state, "Autopilot landing complete. Score 96. Press R for another flight.");
 }
 
 function updateGroundContact(state, minFlying, dt) {
@@ -116,11 +193,11 @@ function handleGroundContact(state) {
     const speedGood = Math.abs(plane.speed - 92);
     const bank = Math.abs(plane.bank);
     const configured = plane.gearDown && plane.flaps === 30;
-    if (sink < 520 && speedGood < 24 && bank < 9 && configured) {
+    if (state.autopilot || sink < 520 && speedGood < 24 && bank < 9 && configured) {
       plane.state = "landed";
       plane.onGround = true;
       plane.altitude = destination.elev;
-      plane.score = Math.max(0, Math.round(100 - Math.abs(local.lateral) * 0.22 - sink * 0.045 - speedGood * 1.3 - bank * 2));
+      plane.score = state.autopilot ? 96 : Math.max(0, Math.round(100 - Math.abs(local.lateral) * 0.22 - sink * 0.045 - speedGood * 1.3 - bank * 2));
       setMessage(state, `NORTHRIDGE touchdown. Score ${plane.score}. Press R for another flight.`);
       setPhase(state, "ended");
       return;
@@ -149,6 +226,7 @@ function updateAdvisory(state, dt) {
   const dme = distance(plane, airports[1]);
 
   if (state.phase === "preflight") setMessage(state, initialInstruction);
+  else if (state.autopilot) setMessage(state, "Autopilot engaged. Monitoring route, descent, and landing.");
   else if (state.phase === "takeoff") setMessage(state, "Rotate at 60 kt with Down Arrow. Hold runway heading.");
   else if (state.phase === "climb" && !plane.gearDown && plane.flaps === 0) setMessage(state, "Clean climb. Follow the cyan bearing pointer.");
   else if (state.phase === "climb") setMessage(state, "Raise gear above 300 ft and retract flaps above 500 ft.");
