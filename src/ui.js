@@ -91,16 +91,13 @@ export function createUi(state, input, audio) {
 
   function pressControl(button, event) {
     event.preventDefault();
-    button.dataset.pointerHandled = "1";
     const key = button.dataset.key;
     if (isHoldControl(key) && !state.paused) {
       audio.resume();
       input.keys.add(key);
       button.classList.add("is-active");
       if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
-      return;
     }
-    runButtonAction(key);
   }
 
   function releaseControl(button, event) {
@@ -130,10 +127,6 @@ export function createUi(state, input, audio) {
     });
     button.addEventListener("click", (event) => {
       event.preventDefault();
-      if (button.dataset.pointerHandled) {
-        delete button.dataset.pointerHandled;
-        return;
-      }
       if (!isHoldControl(button.dataset.key)) runButtonAction(button.dataset.key);
     });
   }
