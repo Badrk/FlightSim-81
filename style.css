@@ -134,23 +134,39 @@ canvas {
 
 .keys {
   display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 8px 10px;
-  align-items: center;
-  color: #cfd4c5;
-  font-size: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
 }
 
-kbd {
+.control-key {
   display: inline-grid;
   place-items: center;
-  min-width: 34px;
-  height: 30px;
-  padding: 0 7px;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
   color: var(--cyan);
   background: #090a0d;
   border: 1px solid #444853;
   box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.06);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.control-key:active,
+.control-key.is-active {
+  color: #09100c;
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.control-key:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
 
 .modal[hidden] {
@@ -258,5 +274,29 @@ kbd {
 
   .modal-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .mission {
+    display: none;
+  }
+
+  .panel {
+    gap: 12px;
+  }
+
+  .help-panel {
+    padding: 12px;
+  }
+
+  .keys {
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 8px;
+  }
+
+  .control-key {
+    height: 48px;
+    font-size: 19px;
   }
 }

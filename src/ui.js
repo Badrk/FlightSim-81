@@ -15,7 +15,8 @@ export function createUi(state, input, audio) {
     help: document.getElementById("help"),
     helpButton: document.getElementById("helpButton"),
     helpModal: document.getElementById("helpModal"),
-    closeHelp: document.getElementById("closeHelp")
+    closeHelp: document.getElementById("closeHelp"),
+    controls: Array.from(document.querySelectorAll("[data-key]"))
   };
 
   function setPaused(next) {
@@ -31,6 +32,23 @@ export function createUi(state, input, audio) {
 
   function toggleHelp() {
     setPaused(!state.paused);
+  }
+
+  function runButtonAction(key) {
+    if (key === "h") {
+      toggleHelp();
+      return;
+    }
+    if (state.paused) return;
+
+    audio.resume();
+    if (key === "r") resetGameState(state);
+    else if (key === "f" && state.plane.state === "flying") state.plane.flaps = state.plane.flaps === 0 ? 15 : state.plane.flaps === 15 ? 30 : 0;
+    else if (key === "g" && state.plane.state === "flying" && !state.plane.onGround) state.plane.gearDown = !state.plane.gearDown;
+  }
+
+  function isHoldControl(key) {
+    return key.startsWith("arrow") || key === "a" || key === "z";
   }
 
   function sync() {
@@ -55,13 +73,10 @@ export function createUi(state, input, audio) {
       return;
     }
 
-    audio.resume();
-    if (key === "r") resetGameState(state);
-    if (key === "f" && state.plane.state === "flying") state.plane.flaps = state.plane.flaps === 0 ? 15 : state.plane.flaps === 15 ? 30 : 0;
-    if (key === "g" && state.plane.state === "flying" && !state.plane.onGround) state.plane.gearDown = !state.plane.gearDown;
+    runButtonAction(key);
 
     input.pressed.add(key);
-    input.keys.add(key);
+    if (isHoldControl(key)) input.keys.add(key);
   }
 
   function onKeyUp(event) {
@@ -74,6 +89,29 @@ export function createUi(state, input, audio) {
     if (!state.paused) audio.resume();
   }
 
+  function pressControl(button, event) {
+    event.preventDefault();
+    button.dataset.pointerHandled = "1";
+    const key = button.dataset.key;
+    if (isHoldControl(key) && !state.paused) {
+      audio.resume();
+      input.keys.add(key);
+      button.classList.add("is-active");
+      if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
+      return;
+    }
+    runButtonAction(key);
+  }
+
+  function releaseControl(button, event) {
+    const key = button.dataset.key;
+    if (isHoldControl(key)) {
+      input.keys.delete(key);
+      button.classList.remove("is-active");
+      if (event.pointerId !== undefined && button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
+    }
+  }
+
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
   window.addEventListener("pointerdown", onPointerDown);
@@ -82,6 +120,23 @@ export function createUi(state, input, audio) {
   elements.helpModal.addEventListener("click", (event) => {
     if (event.target === elements.helpModal) setPaused(false);
   });
+  for (const button of elements.controls) {
+    button.addEventListener("pointerdown", (event) => pressControl(button, event));
+    button.addEventListener("pointerup", (event) => releaseControl(button, event));
+    button.addEventListener("pointercancel", (event) => releaseControl(button, event));
+    button.addEventListener("lostpointercapture", () => {
+      input.keys.delete(button.dataset.key);
+      button.classList.remove("is-active");
+    });
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (button.dataset.pointerHandled) {
+        delete button.dataset.pointerHandled;
+        return;
+      }
+      if (!isHoldControl(button.dataset.key)) runButtonAction(button.dataset.key);
+    });
+  }
 
   sync();
   return { sync, setPaused };

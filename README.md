@@ -30,6 +30,8 @@ The route includes mountains, trees, towns, and a river. The moving map shows th
 
 ## Controls
 
+Use the keyboard or press the cockpit buttons on the right side of the screen. The button grid is intended for touch devices such as iPad.
+
 | Key | Action |
 | --- | --- |
 | Left Arrow | Bank left |
