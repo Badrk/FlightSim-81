@@ -17,6 +17,7 @@ export function createInitialPlane() {
     fuel: 100,
     onGround: true,
     airborneGrace: 0,
+    rolloutTimer: 0,
     state: "flying",
     score: 0,
     stall: false

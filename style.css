@@ -419,86 +419,105 @@ canvas {
   }
 }
 
+html.touch-layout body,
 body.touch-layout {
   overflow: auto;
 }
 
+html.touch-layout .cockpit,
 body.touch-layout .cockpit {
   grid-template-columns: 1fr;
   padding: 10px;
 }
 
+html.touch-layout canvas,
 body.touch-layout canvas {
   width: 100%;
   max-height: none;
 }
 
+html.touch-layout .panel,
 body.touch-layout .panel {
   min-height: 260px;
   gap: 12px;
 }
 
+html.touch-layout .mission,
 body.touch-layout .mission {
   display: none;
 }
 
+html.touch-layout .keys,
 body.touch-layout .keys {
   order: 2;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
+html.touch-layout .keys span,
 body.touch-layout .keys span {
   display: none;
 }
 
+html.touch-layout .help-panel,
 body.touch-layout .help-panel {
   order: 3;
   padding: 12px;
 }
 
+html.touch-layout .control-key,
 body.touch-layout .control-key {
   width: 100%;
   height: 60px;
   font-size: 20px;
 }
 
+html.touch-layout .control-key[data-key="arrowup"],
 body.touch-layout .control-key[data-key="arrowup"] {
   order: 1;
 }
 
+html.touch-layout .control-key[data-key="a"],
 body.touch-layout .control-key[data-key="a"] {
   order: 2;
 }
 
+html.touch-layout .control-key[data-key="arrowdown"],
 body.touch-layout .control-key[data-key="arrowdown"] {
   order: 3;
 }
 
+html.touch-layout .control-key[data-key="z"],
 body.touch-layout .control-key[data-key="z"] {
   order: 4;
 }
 
+html.touch-layout .control-key[data-key="arrowleft"],
 body.touch-layout .control-key[data-key="arrowleft"] {
   order: 5;
 }
 
+html.touch-layout .control-key[data-key="arrowright"],
 body.touch-layout .control-key[data-key="arrowright"] {
   order: 6;
 }
 
+html.touch-layout .control-key[data-key="f"],
 body.touch-layout .control-key[data-key="f"] {
   order: 7;
 }
 
+html.touch-layout .control-key[data-key="g"],
 body.touch-layout .control-key[data-key="g"] {
   order: 8;
 }
 
+html.touch-layout .control-key[data-key="h"],
 body.touch-layout .control-key[data-key="h"] {
   order: 9;
 }
 
+html.touch-layout .control-key[data-key="r"],
 body.touch-layout .control-key[data-key="r"] {
   order: 10;
 }

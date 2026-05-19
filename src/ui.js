@@ -10,6 +10,7 @@ export function createInput() {
 }
 
 export function createUi(state, input, audio) {
+  const clickPulses = new Map();
   const elements = {
     status: document.getElementById("status"),
     phase: document.getElementById("phase"),
@@ -27,7 +28,9 @@ export function createUi(state, input, audio) {
     const coarsePointer = matchMedia("(pointer: coarse)").matches || matchMedia("(hover: none)").matches;
     const narrowViewport = matchMedia("(max-width: 820px)").matches || Math.min(window.innerWidth, window.screen.width) <= 820;
     const touchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
-    document.body.classList.toggle("touch-layout", coarsePointer || narrowViewport || touchDevice);
+    const enabled = coarsePointer || narrowViewport || touchDevice;
+    document.documentElement.classList.toggle("touch-layout", enabled);
+    document.body.classList.toggle("touch-layout", enabled);
   }
 
   function setPaused(next) {
@@ -52,15 +55,24 @@ export function createUi(state, input, audio) {
     }
     if (state.paused) return;
 
-    audio.resume();
-    if (key === "r") resetGameState(state);
-    else if (key === "f" && state.plane.state === "flying") state.plane.flaps = state.plane.flaps === 0 ? 15 : state.plane.flaps === 15 ? 30 : 0;
-    else if (key === "g" && state.plane.state === "flying" && !state.plane.onGround) state.plane.gearDown = !state.plane.gearDown;
+    if (key === "r") {
+      clearManualInput();
+      resetGameState(state);
+      audio.stop();
+    } else if (key === "f" && state.plane.state === "flying") {
+      audio.resume();
+      state.plane.flaps = state.plane.flaps === 0 ? 15 : state.plane.flaps === 15 ? 30 : 0;
+    } else if (key === "g" && state.plane.state === "flying" && !state.plane.onGround) {
+      audio.resume();
+      state.plane.gearDown = !state.plane.gearDown;
+    }
   }
 
   function clearManualInput() {
     input.keys.clear();
     input.pressed.clear();
+    for (const timeout of clickPulses.values()) clearTimeout(timeout);
+    clickPulses.clear();
     for (const button of elements.controls) button.classList.remove("is-active");
   }
 
@@ -78,17 +90,15 @@ export function createUi(state, input, audio) {
       if (event.cancelable) event.preventDefault();
       event.stopPropagation();
       const now = performance.now();
-      if (now - lastRun < 250) return;
+      if (now - lastRun < 500) return;
       lastRun = now;
       action();
       sync();
     }
 
-    button.addEventListener("pointerdown", (event) => {
-      event.stopPropagation();
-    });
-    button.addEventListener("pointerup", run);
-    button.addEventListener("touchend", run, { passive: false });
+    button.addEventListener("pointerdown", run);
+    button.addEventListener("mousedown", run);
+    button.addEventListener("touchstart", run, { passive: false });
     button.addEventListener("click", run);
   }
 
@@ -144,7 +154,10 @@ export function createUi(state, input, audio) {
     const key = button.dataset.key;
     if (!isHoldControl(key) || state.paused) return;
     if (event.cancelable) event.preventDefault();
+    event.stopPropagation();
     audio.resume();
+    clearTimeout(clickPulses.get(key));
+    clickPulses.delete(key);
     input.keys.add(key);
     button.classList.add("is-active");
     if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
@@ -153,10 +166,27 @@ export function createUi(state, input, audio) {
   function releaseControl(button, event) {
     const key = button.dataset.key;
     if (isHoldControl(key)) {
+      if (event.stopPropagation) event.stopPropagation();
       input.keys.delete(key);
       button.classList.remove("is-active");
       if (event.pointerId !== undefined && button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
     }
+  }
+
+  function pulseControl(button, event) {
+    const key = button.dataset.key;
+    if (!isHoldControl(key) || state.paused) return;
+    if (event.cancelable) event.preventDefault();
+    event.stopPropagation();
+    audio.resume();
+    input.keys.add(key);
+    button.classList.add("is-active");
+    clearTimeout(clickPulses.get(key));
+    clickPulses.set(key, setTimeout(() => {
+      input.keys.delete(key);
+      button.classList.remove("is-active");
+      clickPulses.delete(key);
+    }, 140));
   }
 
   window.addEventListener("keydown", onKeyDown);
@@ -190,15 +220,24 @@ export function createUi(state, input, audio) {
     button.addEventListener("pointerdown", (event) => pressControl(button, event));
     button.addEventListener("pointerup", (event) => releaseControl(button, event));
     button.addEventListener("pointercancel", (event) => releaseControl(button, event));
+    button.addEventListener("pointerleave", (event) => releaseControl(button, event));
     button.addEventListener("mousedown", (event) => pressControl(button, event));
+    button.addEventListener("mouseup", (event) => releaseControl(button, event));
+    button.addEventListener("mouseleave", (event) => releaseControl(button, event));
     button.addEventListener("touchstart", (event) => pressControl(button, event), { passive: false });
+    button.addEventListener("touchend", (event) => releaseControl(button, event), { passive: false });
+    button.addEventListener("touchcancel", (event) => releaseControl(button, event), { passive: false });
     button.addEventListener("lostpointercapture", () => {
       input.keys.delete(button.dataset.key);
       button.classList.remove("is-active");
     });
     button.addEventListener("click", (event) => {
-      event.preventDefault();
-      if (!isHoldControl(button.dataset.key)) runButtonAction(button.dataset.key);
+      if (isHoldControl(button.dataset.key)) pulseControl(button, event);
+      else {
+        if (event.cancelable) event.preventDefault();
+        event.stopPropagation();
+        runButtonAction(button.dataset.key);
+      }
     });
   }
 

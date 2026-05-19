@@ -68,6 +68,7 @@ export const helpText = {
   cruise: ["Follow the cyan bearing pointer and map route.", "Keep speed 105-145 kt.", "Stay above terrain and below 2500 ft."],
   approach: ["Descend toward FINAL at 900 ft.", "Set throttle near 45%.", "Line up with runway 09."],
   landing: ["Gear down, flaps 30.", "Aim for 85-105 kt.", "Touch down gently on the runway with wings level."],
+  rollout: ["Keep rolling straight down the runway.", "Throttle idle.", "Wait for the aircraft to slow."],
   ended: ["Press R to reset.", "Score rewards centerline, sink rate, speed, and correct configuration."]
 };
 

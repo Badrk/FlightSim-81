@@ -4,7 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FS-81 Flight</title>
-    <link rel="stylesheet" href="style.css">
+    <script>
+      (function () {
+        var narrow = Math.min(window.innerWidth || 9999, window.screen && window.screen.width || 9999) <= 820;
+        var touch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+        if (narrow || touch) document.documentElement.classList.add("touch-layout");
+      }());
+    </script>
+    <link rel="stylesheet" href="style.css?v=1.4.0">
   </head>
   <body>
     <main class="cockpit" aria-label="FS-81 browser flight simulator">
@@ -49,7 +56,7 @@
     <div class="modal" id="helpModal" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <div class="modal-card">
         <div class="modal-head">
-          <h2 id="helpTitle">Cockpit Help v1.2</h2>
+          <h2 id="helpTitle">Cockpit Help v1.4</h2>
           <button id="closeHelp" type="button" aria-label="Close help">×</button>
         </div>
         <div class="modal-grid">
@@ -86,6 +93,6 @@
         <p class="modal-foot">Press H, Escape, or Close to resume.</p>
       </div>
     </div>
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js?v=1.4.0"></script>
   </body>
 </html>

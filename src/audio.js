@@ -67,5 +67,15 @@ export function createAudioController() {
     audio.warningGain.gain.setTargetAtTime(warning, now, 0.03);
   }
 
-  return { resume, update };
+  function stop() {
+    if (!audio) return;
+    const now = audio.context.currentTime;
+    audio.master.gain.cancelScheduledValues(now);
+    audio.warningGain.gain.cancelScheduledValues(now);
+    audio.master.gain.setValueAtTime(0, now);
+    audio.warningGain.gain.setValueAtTime(0, now);
+    if (audio.context.state === "running") audio.context.suspend();
+  }
+
+  return { resume, stop, update };
 }

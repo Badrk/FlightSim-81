@@ -19,6 +19,11 @@ export function bearingToWaypoint(state, waypoint = route[state.activeWaypoint])
 
 export function updateFlight(state, input, dt) {
   const { plane } = state;
+  if (plane.state === "rollout") {
+    updateLandingRollout(state, dt);
+    updateAdvisory(state, dt);
+    return;
+  }
   if (plane.state !== "flying") return;
   if (state.autopilot) updateAutopilot(state, input, dt);
 
@@ -60,7 +65,10 @@ export function updateFlight(state, input, dt) {
 
   plane.groundAltitude = groundAltitudeAt(plane);
   updateGroundContact(state, minFlying, dt);
-  completeAutopilotLanding(state);
+  if (plane.state === "rollout") {
+    updateAdvisory(state, dt);
+    return;
+  }
 
   plane.fuel = clamp(plane.fuel - (0.002 + plane.throttle * 0.00014) * dt, 0, 100);
   if (plane.fuel <= 0) {
@@ -110,9 +118,9 @@ function updateAutopilot(state, input, dt) {
     plane.throttle = 88;
     targetAltitude = 1600;
     targetSpeed = 125;
-  } else if (distanceToDestination < 3000 || guidance.onFinal) {
+  } else if (distanceToDestination < 4500 || guidance.onFinal) {
     const finalDistance = Math.max(0, distance(plane, finalPoint));
-    targetAltitude = clamp(destination.elev + 18 + distanceToDestination * 0.1, destination.elev + 18, 850);
+    targetAltitude = clamp(destination.elev + 10 + Math.max(0, distanceToDestination - 700) * 0.035, destination.elev + 10, 760);
     if (guidance.onFinal || finalDistance < 1900 || distanceToDestination < 1800) {
       plane.gearDown = true;
       plane.flaps = 30;
@@ -132,7 +140,7 @@ function updateAutopilot(state, input, dt) {
 
   const altitudeError = targetAltitude - plane.altitude;
   const speedError = targetSpeed - plane.speed;
-  const targetPitch = clamp(altitudeError * 0.018 + speedError * -0.025, -12, 9);
+  const targetPitch = clamp(altitudeError * 0.035 + speedError * -0.025, -14, 9);
   plane.pitch += (targetPitch - plane.pitch) * dt * 1.6;
   plane.pitch = clamp(plane.pitch, plane.onGround ? -1 : -14, 15);
 }
@@ -211,19 +219,44 @@ function altitudeFor(point) {
   return point.alt ?? point.elev ?? 0;
 }
 
-function completeAutopilotLanding(state) {
+function startLandingRollout(state, score) {
   const { plane } = state;
   const destination = airports[1];
-  if (!state.autopilot || plane.state !== "flying" || !isOnRunway(plane, destination)) return;
-  if (Math.abs(signedAngle(plane.heading, destination.heading)) > 25 || plane.altitude > destination.elev + 1100) return;
-  plane.state = "landed";
+  plane.state = "rollout";
   plane.onGround = true;
   plane.altitude = destination.elev;
+  plane.groundAltitude = destination.elev;
   plane.verticalSpeed = 0;
-  plane.speed = 0;
-  plane.score = 96;
-  setPhase(state, "ended");
-  setMessage(state, "Autopilot landing complete. Score 96. Press R for another flight.");
+  plane.bank = 0;
+  plane.pitch = 0;
+  plane.throttle = 0;
+  plane.rolloutTimer = 0;
+  plane.score = score;
+  setPhase(state, "rollout");
+  setMessage(state, "Touchdown. Rolling out on NORTHRIDGE runway.");
+}
+
+function updateLandingRollout(state, dt) {
+  const { plane } = state;
+  const destination = airports[1];
+  const headingRad = destination.heading * Math.PI / 180;
+  plane.heading += signedAngle(plane.heading, destination.heading) * dt * 1.8;
+  plane.heading = wrapDeg(plane.heading);
+  plane.x += Math.sin(headingRad) * plane.speed * 1.45 * dt;
+  plane.z -= Math.cos(headingRad) * plane.speed * 1.45 * dt;
+  plane.speed = Math.max(0, plane.speed - 14 * dt);
+  plane.altitude = destination.elev;
+  plane.groundAltitude = destination.elev;
+  plane.verticalSpeed = 0;
+  plane.rolloutTimer += dt;
+
+  if (plane.rolloutTimer >= 5 || plane.speed <= 5) {
+    plane.state = "landed";
+    plane.speed = 0;
+    state.autopilot = false;
+    setPhase(state, "ended");
+    setMessage(state, `Landed. Score ${plane.score}. Press R for another flight.`);
+  }
 }
 
 function updateGroundContact(state, minFlying, dt) {
@@ -245,13 +278,15 @@ function updateGroundContact(state, minFlying, dt) {
   plane.altitude += (plane.verticalSpeed / 60) * dt;
   plane.airborneGrace = Math.max(0, plane.airborneGrace - dt);
   const clearance = plane.altitude - plane.groundAltitude;
-  if (clearance <= 0 && plane.airborneGrace <= 0) handleGroundContact(state);
+  const overDestinationRunway = isOnRunway(plane, airports[1]) && plane.groundAltitude === airports[1].elev;
+  if (clearance <= 0 && plane.airborneGrace <= 0 || overDestinationRunway && clearance <= 40 && plane.verticalSpeed <= 120) handleGroundContact(state);
 }
 
 function updatePhase(state) {
   const { plane } = state;
   const destination = airports[1];
   const dme = distance(plane, destination);
+  if (plane.state === "rollout") return setPhase(state, "rollout");
   if (plane.state !== "flying") return setPhase(state, "ended");
   if (plane.onGround && plane.speed < 35 && distance(plane, airports[0]) < 1500) return setPhase(state, "preflight");
   if (plane.onGround && plane.speed >= 35) return setPhase(state, "takeoff");
@@ -271,12 +306,8 @@ function handleGroundContact(state) {
     const bank = Math.abs(plane.bank);
     const configured = plane.gearDown && plane.flaps === 30;
     if (state.autopilot || sink < 520 && speedGood < 24 && bank < 9 && configured) {
-      plane.state = "landed";
-      plane.onGround = true;
-      plane.altitude = destination.elev;
-      plane.score = state.autopilot ? 96 : Math.max(0, Math.round(100 - Math.abs(local.lateral) * 0.22 - sink * 0.045 - speedGood * 1.3 - bank * 2));
-      setMessage(state, `NORTHRIDGE touchdown. Score ${plane.score}. Press R for another flight.`);
-      setPhase(state, "ended");
+      const score = state.autopilot ? 96 : Math.max(0, Math.round(100 - Math.abs(local.lateral) * 0.22 - sink * 0.045 - speedGood * 1.3 - bank * 2));
+      startLandingRollout(state, score);
       return;
     }
     plane.state = "crashed";
@@ -310,6 +341,7 @@ function updateAdvisory(state, dt) {
   else if (state.phase === "cruise" && Math.abs(err) > 10) setMessage(state, err > 0 ? "Turn right toward the waypoint." : "Turn left toward the waypoint.");
   else if (state.phase === "approach") setMessage(state, `Airport ${Math.round(dme)} m. Descend, line up runway 09.`);
   else if (state.phase === "landing") setMessage(state, "Landing checks: gear down, flaps 30, throttle 35-50%, wings level.");
+  else if (state.phase === "rollout") setMessage(state, "Rolling out. Keep straight until the aircraft slows.");
   else if (plane.stall) setMessage(state, "Stall warning. Nose down or add power.");
   else setMessage(state, `Next ${waypoint.name}. Bearing ${String(Math.round(desired)).padStart(3, "0")}.`);
 }
