@@ -86,7 +86,7 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **G** raises/lowers landing gear once airborne. Gear must be down for landing.
 
-**AP** toggles autopilot. When on, it flies the route and lands at NORTHRIDGE.
+**AP** engages from the current position, flies the route, and lands at NORTHRIDGE. Toggle it off to resume manual control.
 
 **SND** toggles engine and warning audio.
 

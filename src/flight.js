@@ -2,6 +2,8 @@ import { airports, initialInstruction, route } from "./config.js";
 import { bearingBetween, clamp, distance, signedAngle, wrapDeg } from "./math.js";
 import { groundAltitudeAt, isOnRunway, runwayLocal, terrainHeight } from "./world.js";
 
+const autopilotPath = [airports[0], ...route];
+
 export function setMessage(state, text, seconds = 3.8) {
   state.message = text;
   state.messageTimer = seconds;
@@ -81,9 +83,10 @@ function updateAutopilot(state, input, dt) {
   const destination = airports[1];
   const finalPoint = route[route.length - 2];
   const distanceToDestination = distance(plane, destination);
-  const target = state.activeWaypoint >= route.length - 1 ? destination : route[state.activeWaypoint];
+  const guidance = autopilotGuidance(state);
+  const target = guidance.target;
   let desiredHeading = bearingBetween(plane, target);
-  if (state.activeWaypoint >= route.length - 1 || distanceToDestination < 1800) {
+  if (guidance.onFinal || distanceToDestination < 1800) {
     const local = runwayLocal(plane, destination);
     desiredHeading = wrapDeg(destination.heading - clamp(local.lateral * 0.08, -28, 28));
   }
@@ -93,7 +96,7 @@ function updateAutopilot(state, input, dt) {
   plane.bank = clamp(plane.bank, -30, 30);
   plane.heading = wrapDeg(plane.heading + clamp(headingError, -45, 45) * dt * 0.7);
 
-  let targetAltitude = target.alt;
+  let targetAltitude = Math.max(target.alt, terrainHeight(plane.x, plane.z) + 650);
   let targetSpeed = 122;
   if (plane.onGround && distance(plane, airports[0]) < 1500) {
     plane.flaps = 15;
@@ -107,10 +110,10 @@ function updateAutopilot(state, input, dt) {
     plane.throttle = 88;
     targetAltitude = 1600;
     targetSpeed = 125;
-  } else if (distanceToDestination < 3000 || state.activeWaypoint >= route.length - 1) {
+  } else if (distanceToDestination < 3000 || guidance.onFinal) {
     const finalDistance = Math.max(0, distance(plane, finalPoint));
     targetAltitude = clamp(destination.elev + 18 + distanceToDestination * 0.1, destination.elev + 18, 850);
-    if (state.activeWaypoint >= route.length - 1 || finalDistance < 1900 || distanceToDestination < 1800) {
+    if (guidance.onFinal || finalDistance < 1900 || distanceToDestination < 1800) {
       plane.gearDown = true;
       plane.flaps = 30;
       targetSpeed = 92;
@@ -132,6 +135,80 @@ function updateAutopilot(state, input, dt) {
   const targetPitch = clamp(altitudeError * 0.018 + speedError * -0.025, -12, 9);
   plane.pitch += (targetPitch - plane.pitch) * dt * 1.6;
   plane.pitch = clamp(plane.pitch, plane.onGround ? -1 : -14, 15);
+}
+
+function autopilotGuidance(state) {
+  const routePosition = locateAlongRoute(state.plane);
+  const lookAhead = clamp(state.plane.speed * 12, 850, 1800);
+  const target = pointAlongRoute(routePosition.progress + lookAhead);
+  state.activeWaypoint = nextRouteWaypoint(routePosition.progress + 350);
+  return {
+    target,
+    onFinal: routePosition.progress >= routeProgressAt(route.length - 1) - 250 || distance(state.plane, airports[1]) < 2200
+  };
+}
+
+function locateAlongRoute(plane) {
+  let best = { distance: Infinity, progress: 0 };
+  let progress = 0;
+
+  for (let index = 0; index < autopilotPath.length - 1; index += 1) {
+    const start = autopilotPath[index];
+    const end = autopilotPath[index + 1];
+    const dx = end.x - start.x;
+    const dz = end.z - start.z;
+    const length = Math.hypot(dx, dz);
+    const t = length === 0 ? 0 : clamp(((plane.x - start.x) * dx + (plane.z - start.z) * dz) / (length * length), 0, 1);
+    const x = start.x + dx * t;
+    const z = start.z + dz * t;
+    const candidateDistance = Math.hypot(plane.x - x, plane.z - z);
+    if (candidateDistance < best.distance) best = { distance: candidateDistance, progress: progress + length * t };
+    progress += length;
+  }
+
+  return best;
+}
+
+function pointAlongRoute(progress) {
+  const total = routeProgressAt(route.length);
+  let remaining = clamp(progress, 0, total);
+
+  for (let index = 0; index < autopilotPath.length - 1; index += 1) {
+    const start = autopilotPath[index];
+    const end = autopilotPath[index + 1];
+    const length = Math.hypot(end.x - start.x, end.z - start.z);
+    if (remaining <= length || index === autopilotPath.length - 2) {
+      const t = length === 0 ? 0 : remaining / length;
+      return {
+        name: end.name,
+        x: start.x + (end.x - start.x) * t,
+        z: start.z + (end.z - start.z) * t,
+        alt: altitudeFor(start) + (altitudeFor(end) - altitudeFor(start)) * t
+      };
+    }
+    remaining -= length;
+  }
+
+  return route[route.length - 1];
+}
+
+function nextRouteWaypoint(progress) {
+  for (let index = 0; index < route.length; index += 1) {
+    if (progress <= routeProgressAt(index + 1)) return index;
+  }
+  return route.length - 1;
+}
+
+function routeProgressAt(pathIndex) {
+  let progress = 0;
+  for (let index = 0; index < Math.min(pathIndex, autopilotPath.length - 1); index += 1) {
+    progress += Math.hypot(autopilotPath[index + 1].x - autopilotPath[index].x, autopilotPath[index + 1].z - autopilotPath[index].z);
+  }
+  return progress;
+}
+
+function altitudeFor(point) {
+  return point.alt ?? point.elev ?? 0;
 }
 
 function completeAutopilotLanding(state) {

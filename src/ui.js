@@ -1,4 +1,5 @@
 import { handledKeys, helpText } from "./config.js";
+import { setMessage } from "./flight.js";
 import { resetGameState } from "./state.js";
 
 export function createInput() {
@@ -49,6 +50,19 @@ export function createUi(state, input, audio) {
     if (key === "r") resetGameState(state);
     else if (key === "f" && state.plane.state === "flying") state.plane.flaps = state.plane.flaps === 0 ? 15 : state.plane.flaps === 15 ? 30 : 0;
     else if (key === "g" && state.plane.state === "flying" && !state.plane.onGround) state.plane.gearDown = !state.plane.gearDown;
+  }
+
+  function clearManualInput() {
+    input.keys.clear();
+    input.pressed.clear();
+    for (const button of elements.controls) button.classList.remove("is-active");
+  }
+
+  function toggleAutopilot() {
+    if (state.paused || state.plane.state !== "flying") return;
+    state.autopilot = !state.autopilot;
+    clearManualInput();
+    setMessage(state, state.autopilot ? "Autopilot engaged from present position." : "Autopilot off. Manual control restored.");
   }
 
   function isHoldControl(key) {
@@ -136,8 +150,7 @@ export function createUi(state, input, audio) {
     if (event.target === elements.helpModal) setPaused(false);
   });
   elements.autopilotToggle.addEventListener("click", () => {
-    state.autopilot = !state.autopilot;
-    input.keys.clear();
+    toggleAutopilot();
   });
   elements.soundToggle.addEventListener("click", () => {
     state.soundEnabled = !state.soundEnabled;
