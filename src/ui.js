@@ -22,7 +22,13 @@ export function createUi(state, input, audio) {
     mapModeToggle: document.getElementById("mapModeToggle"),
     controls: Array.from(document.querySelectorAll("[data-key]"))
   };
-  document.body.classList.toggle("touch-layout", navigator.maxTouchPoints > 0);
+
+  function syncLayoutMode() {
+    const coarsePointer = matchMedia("(pointer: coarse)").matches || matchMedia("(hover: none)").matches;
+    const narrowViewport = matchMedia("(max-width: 820px)").matches || Math.min(window.innerWidth, window.screen.width) <= 820;
+    const touchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+    document.body.classList.toggle("touch-layout", coarsePointer || narrowViewport || touchDevice);
+  }
 
   function setPaused(next) {
     state.paused = next;
@@ -63,6 +69,27 @@ export function createUi(state, input, audio) {
     state.autopilot = !state.autopilot;
     clearManualInput();
     setMessage(state, state.autopilot ? "Autopilot engaged from present position." : "Autopilot off. Manual control restored.");
+  }
+
+  function bindToggle(button, action) {
+    let lastRun = 0;
+
+    function run(event) {
+      if (event.cancelable) event.preventDefault();
+      event.stopPropagation();
+      const now = performance.now();
+      if (now - lastRun < 250) return;
+      lastRun = now;
+      action();
+      sync();
+    }
+
+    button.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+    });
+    button.addEventListener("pointerup", run);
+    button.addEventListener("touchend", run, { passive: false });
+    button.addEventListener("click", run);
   }
 
   function isHoldControl(key) {
@@ -149,14 +176,14 @@ export function createUi(state, input, audio) {
   elements.helpModal.addEventListener("click", (event) => {
     if (event.target === elements.helpModal) setPaused(false);
   });
-  elements.autopilotToggle.addEventListener("click", () => {
+  bindToggle(elements.autopilotToggle, () => {
     toggleAutopilot();
   });
-  elements.soundToggle.addEventListener("click", () => {
+  bindToggle(elements.soundToggle, () => {
     state.soundEnabled = !state.soundEnabled;
     if (state.soundEnabled) audio.resume();
   });
-  elements.mapModeToggle.addEventListener("click", () => {
+  bindToggle(elements.mapModeToggle, () => {
     state.mapNorthUp = !state.mapNorthUp;
   });
   for (const button of elements.controls) {
@@ -175,6 +202,9 @@ export function createUi(state, input, audio) {
     });
   }
 
+  syncLayoutMode();
+  window.addEventListener("resize", syncLayoutMode);
+  window.addEventListener("orientationchange", syncLayoutMode);
   sync();
   return { sync, setPaused };
 }
