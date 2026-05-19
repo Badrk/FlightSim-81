@@ -134,23 +134,26 @@ canvas {
 
 .keys {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: 46px 1fr;
+  gap: 8px 10px;
+  align-items: center;
+  color: #cfd4c5;
+  font-size: 14px;
 }
 
 .control-key {
   display: inline-grid;
   place-items: center;
-  width: 100%;
+  width: 46px;
   min-width: 0;
-  height: 44px;
+  height: 30px;
   padding: 0;
   color: var(--cyan);
   background: #090a0d;
   border: 1px solid #444853;
   box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.06);
   font: inherit;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   touch-action: none;
@@ -272,16 +275,71 @@ canvas {
     min-height: 260px;
   }
 
+  .mission {
+    display: none;
+  }
+
+  .keys {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .keys span {
+    display: none;
+  }
+
+  .control-key {
+    width: 100%;
+    height: 58px;
+    font-size: 20px;
+  }
+
+  .control-key[data-key="arrowup"] {
+    order: 1;
+  }
+
+  .control-key[data-key="a"] {
+    order: 2;
+  }
+
+  .control-key[data-key="arrowdown"] {
+    order: 3;
+  }
+
+  .control-key[data-key="z"] {
+    order: 4;
+  }
+
+  .control-key[data-key="arrowleft"] {
+    order: 5;
+  }
+
+  .control-key[data-key="arrowright"] {
+    order: 6;
+  }
+
+  .control-key[data-key="f"] {
+    order: 7;
+  }
+
+  .control-key[data-key="g"] {
+    order: 8;
+  }
+
+  .control-key[data-key="h"] {
+    order: 9;
+  }
+
+  .control-key[data-key="r"] {
+    order: 10;
+  }
+
   .modal-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 600px) {
-  .mission {
-    display: none;
-  }
-
   .panel {
     gap: 12px;
   }
@@ -290,13 +348,7 @@ canvas {
     padding: 12px;
   }
 
-  .keys {
-    grid-template-columns: repeat(5, minmax(44px, 1fr));
-    gap: 8px;
-  }
-
   .control-key {
-    height: 48px;
-    font-size: 19px;
+    height: 60px;
   }
 }

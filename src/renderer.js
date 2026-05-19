@@ -67,15 +67,16 @@ function drawPoly(ctx, state, points, color, stroke = null) {
 
 function drawWorld(ctx, state) {
   const horizonY = H / 2 + state.plane.pitch * 4;
-  ctx.fillStyle = palette.farSky;
-  ctx.fillRect(0, 0, W, horizonY);
-  ctx.fillStyle = palette.ground;
-  ctx.fillRect(0, horizonY, W, H - horizonY);
-
   ctx.save();
   ctx.translate(W / 2, H / 2);
   ctx.rotate(-state.plane.bank * Math.PI / 180);
   ctx.translate(-W / 2, -H / 2);
+
+  const fillMargin = Math.hypot(W, H);
+  ctx.fillStyle = palette.farSky;
+  ctx.fillRect(-fillMargin, -fillMargin, W + fillMargin * 2, horizonY + fillMargin);
+  ctx.fillStyle = palette.ground;
+  ctx.fillRect(-fillMargin, horizonY, W + fillMargin * 2, H - horizonY + fillMargin);
 
   ctx.strokeStyle = palette.cyan;
   ctx.lineWidth = 2;
