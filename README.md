@@ -1,10 +1,10 @@
-# FlightSim-81
+# FS-81
 
-FlightSim-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
+FS-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
 
 The simulator is intentionally simple and chunky, but it includes enough flight behavior to feel like a simulator rather than an arcade sprite game: pitch, bank, throttle, speed, lift, drag, vertical speed, stalls, landing gear, flaps, fuel, terrain clearance, route navigation, and touchdown scoring.
 
-![FlightSim-81 cockpit screenshot](assets/Flight-Sim-81.png)
+![FS-81 cockpit screenshot](assets/Flight-Sim-81.png)
 
 ## Play
 
