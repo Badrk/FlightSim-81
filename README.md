@@ -72,8 +72,6 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **Map** shows your aircraft, the river, airports, and the route. Follow the cyan line to the active waypoint.
 
-**N↑/HDG↑** switches the map between north-up and heading-up orientation.
-
 **Right strip** is a course/altitude cue. Keep cyan near center for bearing; amber near center for target altitude.
 
 ### Flight Controls
@@ -86,9 +84,13 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **G** raises/lowers landing gear once airborne. Gear must be down for landing.
 
+### Top-Right Toggles
+
 **AP** engages from the current position, flies the route, and lands at NORTHRIDGE. Toggle it off to resume manual control.
 
 **SND** toggles engine and warning audio.
+
+**N↑/HDG↑** switches the HUD map between north-up and heading-up modes.
 
 ## In-Flight Guidance
 
