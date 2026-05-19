@@ -9,6 +9,11 @@
   <body>
     <main class="cockpit" aria-label="FS-81 browser flight simulator">
       <section class="screen-wrap">
+        <div class="game-toolbar" aria-label="Flight display toggles">
+          <button class="icon-toggle" id="autopilotToggle" type="button" aria-pressed="false" aria-label="Toggle autopilot">AP</button>
+          <button class="icon-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Toggle sound">SND</button>
+          <button class="icon-toggle" id="mapModeToggle" type="button" aria-pressed="true" aria-label="Toggle map orientation">N↑</button>
+        </div>
         <canvas id="game" width="640" height="480" aria-label="Flight simulator display"></canvas>
       </section>
       <aside class="panel">
@@ -44,7 +49,7 @@
     <div class="modal" id="helpModal" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <div class="modal-card">
         <div class="modal-head">
-          <h2 id="helpTitle">Cockpit Help v1.1</h2>
+          <h2 id="helpTitle">Cockpit Help v1.2</h2>
           <button id="closeHelp" type="button" aria-label="Close help">×</button>
         </div>
         <div class="modal-grid">
@@ -61,6 +66,7 @@
             <p><strong>HOR</strong> is the artificial horizon. Blue over green means level; the line tilts with bank and moves with pitch.</p>
             <p><strong>COMP</strong> is the compass. The number is your heading; the cyan needle points toward the next waypoint.</p>
             <p><strong>Map</strong> shows your aircraft, the river, airports, and the route. Follow the cyan line to the active waypoint.</p>
+            <p><strong>N↑/HDG↑</strong> switches the map between north-up and heading-up orientation.</p>
             <p><strong>Right strip</strong> is a course/altitude cue. Keep cyan near center for bearing; amber near center for target altitude.</p>
           </section>
           <section>
@@ -69,6 +75,8 @@
             <p><strong>A/Z</strong> increase/decrease throttle.</p>
             <p><strong>F</strong> cycles flaps 0, 15, 30. Use 15 for takeoff and 30 for landing.</p>
             <p><strong>G</strong> raises/lowers landing gear once airborne. Gear must be down for landing.</p>
+            <p><strong>AP</strong> toggles autopilot. When on, it flies the route and lands at NORTHRIDGE.</p>
+            <p><strong>SND</strong> toggles engine and warning audio.</p>
           </section>
         </div>
         <p class="modal-foot">Press H, Escape, or Close to resume.</p>
