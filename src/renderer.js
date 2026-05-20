@@ -1,6 +1,6 @@
-import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, lakes, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.4";
-import { bearingToWaypoint } from "./flight.js?v=1.5.4";
-import { clamp, distance, signedAngle } from "./math.js?v=1.5.4";
+import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, lakes, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.5";
+import { bearingToWaypoint } from "./flight.js?v=1.5.5";
+import { clamp, distance, signedAngle } from "./math.js?v=1.5.5";
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext("2d");
@@ -124,14 +124,6 @@ function drawMovingBackdrop(ctx, state, horizonY) {
     ctx.stroke();
   }
 
-  const lateralShift = ((side * 0.035) % 96 + 96) % 96;
-  ctx.strokeStyle = "rgba(30, 143, 69, 0.28)";
-  for (let x = -fillMargin - lateralShift; x < W + fillMargin; x += 96) {
-    ctx.beginPath();
-    ctx.moveTo(W / 2, horizonY);
-    ctx.lineTo(x, H + fillMargin);
-    ctx.stroke();
-  }
 }
 
 function drawRunway(ctx, state, airport) {
@@ -142,8 +134,8 @@ function drawRunway(ctx, state, airport) {
   const rz = Math.sin(hdg);
   const length = airport.length / 2;
   const width = airport.width / 2;
-  const y = airport.elev + 2;
-  const step = 180;
+  const y = airport.elev;
+  const step = 70;
 
   function point(along, lateral, lift = 0) {
     return {
@@ -155,7 +147,7 @@ function drawRunway(ctx, state, airport) {
 
   for (let along = -length; along < length; along += step) {
     const next = Math.min(length, along + step);
-    drawPoly(ctx, state, [
+    drawRunwayPoly(ctx, state, [
       point(along, -width),
       point(next, -width),
       point(next, width),
@@ -170,6 +162,38 @@ function drawRunway(ctx, state, airport) {
   }
 
   drawAirportBuildings(ctx, state, airport, rx, rz, fx, fz);
+}
+
+function drawRunwayPoly(ctx, state, points) {
+  const projected = points.map((p) => toRunwayScreen(state, p.x, p.y, p.z));
+  if (projected.every((p) => !p)) return;
+  ctx.fillStyle = palette.runway;
+  ctx.beginPath();
+  for (let i = 0; i < projected.length; i += 1) {
+    const p = projected[i] || projected[(i + 1) % projected.length] || projected[(i + 2) % projected.length];
+    if (!p) return;
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function toRunwayScreen(state, x, y, z) {
+  const { plane } = state;
+  const relX = x - plane.x;
+  const relZ = z - plane.z;
+  const relY = y - plane.altitude;
+  const headingRad = plane.heading * Math.PI / 180;
+  const tx = relX * Math.cos(headingRad) + relZ * Math.sin(headingRad);
+  const tz = relX * Math.sin(headingRad) + relZ * -Math.cos(headingRad);
+  if (tz < -160) return null;
+  const scale = 420 / Math.max(40, tz);
+  return {
+    x: W / 2 + tx * scale,
+    y: H / 2 - relY * scale + plane.pitch * 4,
+    scale
+  };
 }
 
 function drawAirportBuildings(ctx, state, airport, rx, rz, fx, fz) {

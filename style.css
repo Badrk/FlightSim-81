@@ -522,7 +522,7 @@ body.touch-layout .control-key[data-key="r"] {
   order: 10;
 }
 
-@media (orientation: landscape) and (max-height: 560px) and (pointer: coarse), (orientation: landscape) and (max-height: 560px) and (hover: none) {
+@media (orientation: landscape) and (pointer: coarse), (orientation: landscape) and (hover: none) {
   body {
     overflow: hidden;
   }
@@ -530,23 +530,26 @@ body.touch-layout .control-key[data-key="r"] {
   .cockpit,
   html.touch-layout .cockpit,
   body.touch-layout .cockpit {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 168px;
+    gap: 0;
     min-height: 100vh;
     padding: 0;
   }
 
   .screen-wrap {
-    height: calc(100vh - 38px);
+    height: calc(100vh - 42px);
     padding: 0;
     border: 0;
     box-shadow: none;
+    justify-content: start;
   }
 
   canvas,
   html.touch-layout canvas,
   body.touch-layout canvas {
-    width: min(100vw, calc((100vh - 38px) * 1.333));
-    height: calc(100vh - 38px);
+    width: min(calc(100vw - 168px), calc((100vh - 42px) * 1.333));
+    height: calc(100vh - 42px);
     max-height: none;
     border-width: 8px;
   }
@@ -565,22 +568,20 @@ body.touch-layout .control-key[data-key="r"] {
   .panel,
   html.touch-layout .panel,
   body.touch-layout .panel {
-    position: fixed;
-    inset: auto 0 0 0;
-    height: 38px;
+    position: static;
+    height: calc(100vh - 42px);
     min-height: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    overflow: visible;
-    pointer-events: none;
+    padding: 8px;
+    border-width: 0 0 0 1px;
+    background: #1c1d22;
+    overflow: hidden;
+    pointer-events: auto;
   }
 
   .panel > div:first-child,
   .help-panel,
   html.touch-layout .help-panel,
-  body.touch-layout .help-panel,
-  .keys span {
+  body.touch-layout .help-panel {
     display: none;
   }
 
@@ -591,13 +592,13 @@ body.touch-layout .control-key[data-key="r"] {
     left: 0;
     right: 0;
     bottom: 0;
-    min-height: 38px;
-    height: 38px;
+    min-height: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
-    padding: 5px 10px 5px 170px;
+    padding: 5px 10px;
     border-width: 1px 0 0;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.25;
     pointer-events: none;
   }
@@ -605,93 +606,89 @@ body.touch-layout .control-key[data-key="r"] {
   .keys,
   html.touch-layout .keys,
   body.touch-layout .keys {
-    position: fixed;
-    left: 10px;
-    top: 50%;
+    position: static;
     z-index: 7;
-    width: 140px;
+    width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 42px);
-    grid-auto-rows: 38px;
-    gap: 6px;
-    transform: translateY(-50%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(46px, 1fr);
+    gap: 8px;
+    transform: none;
     pointer-events: auto;
+  }
+
+  .keys span,
+  html.touch-layout .keys span,
+  body.touch-layout .keys span {
+    display: none;
   }
 
   .control-key,
   html.touch-layout .control-key,
   body.touch-layout .control-key {
-    width: 42px;
-    height: 38px;
-    font-size: 15px;
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    font-size: 18px;
   }
 
-  .control-key[data-key="arrowup"] {
+  .control-key[data-key="arrowup"],
+  html.touch-layout .control-key[data-key="arrowup"],
+  body.touch-layout .control-key[data-key="arrowup"] {
     order: 1;
-    grid-column: 2;
-  }
-
-  .control-key[data-key="arrowleft"] {
-    order: 2;
-    grid-column: 1;
-  }
-
-  .control-key[data-key="arrowdown"] {
-    order: 3;
-    grid-column: 2;
-  }
-
-  .control-key[data-key="arrowright"] {
-    order: 4;
-    grid-column: 3;
-  }
-
-  .control-key[data-key="h"] {
-    order: 5;
-    grid-column: 1;
-  }
-
-  .control-key[data-key="r"] {
-    order: 6;
-    grid-column: 3;
   }
 
   .control-key[data-key="a"],
+  html.touch-layout .control-key[data-key="a"],
+  body.touch-layout .control-key[data-key="a"] {
+    order: 2;
+  }
+
+  .control-key[data-key="arrowdown"],
+  html.touch-layout .control-key[data-key="arrowdown"],
+  body.touch-layout .control-key[data-key="arrowdown"] {
+    order: 3;
+  }
+
   .control-key[data-key="z"],
+  html.touch-layout .control-key[data-key="z"],
+  body.touch-layout .control-key[data-key="z"] {
+    order: 4;
+  }
+
+  .control-key[data-key="arrowleft"],
+  html.touch-layout .control-key[data-key="arrowleft"],
+  body.touch-layout .control-key[data-key="arrowleft"] {
+    order: 5;
+  }
+
+  .control-key[data-key="arrowright"],
+  html.touch-layout .control-key[data-key="arrowright"],
+  body.touch-layout .control-key[data-key="arrowright"] {
+    order: 6;
+  }
+
   .control-key[data-key="f"],
-  .control-key[data-key="g"] {
-    display: none;
-    position: fixed;
-    left: 174px;
-    z-index: 8;
-    width: 46px;
-    height: 42px;
+  html.touch-layout .control-key[data-key="f"],
+  body.touch-layout .control-key[data-key="f"] {
+    order: 7;
   }
 
-  body[data-phase="preflight"] .control-key[data-key="a"],
-  body[data-phase="takeoff"] .control-key[data-key="a"] {
-    display: grid;
-    top: 36%;
+  .control-key[data-key="g"],
+  html.touch-layout .control-key[data-key="g"],
+  body.touch-layout .control-key[data-key="g"] {
+    order: 8;
   }
 
-  body[data-phase="preflight"] .control-key[data-key="f"],
-  body[data-phase="climb"] .control-key[data-key="f"],
-  body[data-phase="approach"] .control-key[data-key="f"],
-  body[data-phase="landing"] .control-key[data-key="f"] {
-    display: grid;
-    top: 50%;
+  .control-key[data-key="h"],
+  html.touch-layout .control-key[data-key="h"],
+  body.touch-layout .control-key[data-key="h"] {
+    order: 9;
   }
 
-  body[data-phase="climb"] .control-key[data-key="g"],
-  body[data-phase="approach"] .control-key[data-key="g"],
-  body[data-phase="landing"] .control-key[data-key="g"] {
-    display: grid;
-    top: 64%;
-  }
-
-  body[data-phase="approach"] .control-key[data-key="z"],
-  body[data-phase="landing"] .control-key[data-key="z"] {
-    display: grid;
-    top: 36%;
+  .control-key[data-key="r"],
+  html.touch-layout .control-key[data-key="r"],
+  body.touch-layout .control-key[data-key="r"] {
+    order: 10;
   }
 }

@@ -1,4 +1,4 @@
-import { initialInstruction } from "./config.js?v=1.5.4";
+import { initialInstruction } from "./config.js?v=1.5.5";
 
 export function createInitialPlane() {
   return {

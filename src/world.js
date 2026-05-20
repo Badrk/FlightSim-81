@@ -1,4 +1,4 @@
-import { airports, mountains } from "./config.js?v=1.5.4";
+import { airports, mountains } from "./config.js?v=1.5.5";
 
 export function terrainHeight(x, z) {
   let height = 0;
