@@ -52,7 +52,7 @@ body {
 .game-toolbar {
   position: absolute;
   top: 30px;
-  right: 30px;
+  left: 30px;
   z-index: 5;
   display: flex;
   gap: 6px;
@@ -408,7 +408,7 @@ canvas {
 
   .game-toolbar {
     top: 22px;
-    right: 22px;
+    left: 22px;
   }
 
   .icon-toggle {
@@ -520,4 +520,178 @@ body.touch-layout .control-key[data-key="h"] {
 html.touch-layout .control-key[data-key="r"],
 body.touch-layout .control-key[data-key="r"] {
   order: 10;
+}
+
+@media (orientation: landscape) and (max-height: 560px) and (pointer: coarse), (orientation: landscape) and (max-height: 560px) and (hover: none) {
+  body {
+    overflow: hidden;
+  }
+
+  .cockpit,
+  html.touch-layout .cockpit,
+  body.touch-layout .cockpit {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .screen-wrap {
+    height: calc(100vh - 38px);
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  canvas,
+  html.touch-layout canvas,
+  body.touch-layout canvas {
+    width: min(100vw, calc((100vh - 38px) * 1.333));
+    height: calc(100vh - 38px);
+    max-height: none;
+    border-width: 8px;
+  }
+
+  .game-toolbar {
+    top: 8px;
+    left: 8px;
+  }
+
+  .icon-toggle {
+    min-width: 34px;
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .panel,
+  html.touch-layout .panel,
+  body.touch-layout .panel {
+    position: fixed;
+    inset: auto 0 0 0;
+    height: 38px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .panel > div:first-child,
+  .help-panel,
+  html.touch-layout .help-panel,
+  body.touch-layout .help-panel,
+  .keys span {
+    display: none;
+  }
+
+  .mission,
+  html.touch-layout .mission,
+  body.touch-layout .mission {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 5px 10px 5px 170px;
+    border-width: 1px 0 0;
+    font-size: 12px;
+    line-height: 1.25;
+    pointer-events: none;
+  }
+
+  .keys,
+  html.touch-layout .keys,
+  body.touch-layout .keys {
+    position: fixed;
+    left: 10px;
+    top: 50%;
+    z-index: 7;
+    width: 140px;
+    display: grid;
+    grid-template-columns: repeat(3, 42px);
+    grid-auto-rows: 38px;
+    gap: 6px;
+    transform: translateY(-50%);
+    pointer-events: auto;
+  }
+
+  .control-key,
+  html.touch-layout .control-key,
+  body.touch-layout .control-key {
+    width: 42px;
+    height: 38px;
+    font-size: 15px;
+  }
+
+  .control-key[data-key="arrowup"] {
+    order: 1;
+    grid-column: 2;
+  }
+
+  .control-key[data-key="arrowleft"] {
+    order: 2;
+    grid-column: 1;
+  }
+
+  .control-key[data-key="arrowdown"] {
+    order: 3;
+    grid-column: 2;
+  }
+
+  .control-key[data-key="arrowright"] {
+    order: 4;
+    grid-column: 3;
+  }
+
+  .control-key[data-key="h"] {
+    order: 5;
+    grid-column: 1;
+  }
+
+  .control-key[data-key="r"] {
+    order: 6;
+    grid-column: 3;
+  }
+
+  .control-key[data-key="a"],
+  .control-key[data-key="z"],
+  .control-key[data-key="f"],
+  .control-key[data-key="g"] {
+    display: none;
+    position: fixed;
+    left: 174px;
+    z-index: 8;
+    width: 46px;
+    height: 42px;
+  }
+
+  body[data-phase="preflight"] .control-key[data-key="a"],
+  body[data-phase="takeoff"] .control-key[data-key="a"] {
+    display: grid;
+    top: 36%;
+  }
+
+  body[data-phase="preflight"] .control-key[data-key="f"],
+  body[data-phase="climb"] .control-key[data-key="f"],
+  body[data-phase="approach"] .control-key[data-key="f"],
+  body[data-phase="landing"] .control-key[data-key="f"] {
+    display: grid;
+    top: 50%;
+  }
+
+  body[data-phase="climb"] .control-key[data-key="g"],
+  body[data-phase="approach"] .control-key[data-key="g"],
+  body[data-phase="landing"] .control-key[data-key="g"] {
+    display: grid;
+    top: 64%;
+  }
+
+  body[data-phase="approach"] .control-key[data-key="z"],
+  body[data-phase="landing"] .control-key[data-key="z"] {
+    display: grid;
+    top: 36%;
+  }
 }

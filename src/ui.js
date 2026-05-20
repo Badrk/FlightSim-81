@@ -1,6 +1,6 @@
-import { handledKeys, helpText } from "./config.js?v=1.5.3";
-import { setMessage } from "./flight.js?v=1.5.3";
-import { resetGameState } from "./state.js?v=1.5.3";
+import { handledKeys, helpText } from "./config.js?v=1.5.4";
+import { setMessage } from "./flight.js?v=1.5.4";
+import { resetGameState } from "./state.js?v=1.5.4";
 
 export function createInput() {
   return {
@@ -107,6 +107,7 @@ export function createUi(state, input, audio) {
   }
 
   function sync() {
+    document.body.dataset.phase = state.phase;
     elements.status.textContent = state.message;
     elements.phase.textContent = state.phase.charAt(0).toUpperCase() + state.phase.slice(1);
     elements.help.innerHTML = helpText[state.phase].map((item) => `<li>${item}</li>`).join("");
@@ -144,10 +145,6 @@ export function createUi(state, input, audio) {
     const key = event.key.toLowerCase();
     input.keys.delete(key);
     input.pressed.delete(key);
-  }
-
-  function onPointerDown() {
-    if (!state.paused) audio.resume();
   }
 
   function pressControl(button, event) {
@@ -191,7 +188,6 @@ export function createUi(state, input, audio) {
 
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
-  window.addEventListener("pointerdown", onPointerDown);
   window.addEventListener("mouseup", () => {
     for (const button of elements.controls) releaseControl(button, {});
   });

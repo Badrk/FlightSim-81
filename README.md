@@ -1,6 +1,6 @@
 # FS-81
 
-Current version: **v1.5.3**
+Current version: **v1.5.4**
 
 FS-81 is a small browser-based first-person flight simulator inspired by early 8-bit computer flight sims. It focuses on the core pilot workload: take off, climb, follow instruments and map cues to another airport, descend, line up with the runway, and land safely.
 
@@ -32,7 +32,7 @@ The route includes mountains, trees, towns, and a river. The moving map shows th
 
 ## Controls
 
-Use the keyboard or press the cockpit buttons on the right side of the screen. The button grid is intended for touch devices such as iPad.
+Use the keyboard or press the cockpit buttons. Touch layouts move the controls onto or below the main flight display.
 
 | Key | Action |
 | --- | --- |
@@ -84,7 +84,7 @@ Use the keyboard or press the cockpit buttons on the right side of the screen. T
 
 **G** raises/lowers landing gear once airborne. Gear must be down for landing.
 
-### Top-Right Toggles
+### Top-Left Toggles
 
 **AP** engages from the current position, flies the route, and lands at NORTHRIDGE. Toggle it off to resume manual control.
 

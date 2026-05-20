@@ -39,14 +39,24 @@ export const river = [
   { x: 4300, z: -900 },
   { x: 6200, z: -2300 },
   { x: 8500, z: -3000 },
-  { x: 10450, z: -3000 },
-  { x: 11100, z: -4700 }
+  { x: 10700, z: -2500 },
+  { x: 11900, z: -4700 }
+];
+
+export const lakes = [
+  { x: 3400, z: 1250, rx: 520, rz: 260 },
+  { x: 7600, z: -1450, rx: 620, rz: 320 },
+  { x: 12400, z: -5200, rx: 760, rz: 360 }
 ];
 
 export const towns = [
   { name: "MILL", x: 1800, z: 900, size: 520 },
   { name: "LAKE", x: 5150, z: -1900, size: 720 },
-  { name: "RIDGE", x: 8700, z: -4700, size: 620 }
+  { name: "RIDGE", x: 8700, z: -4700, size: 620 },
+  { name: "HAYES", x: -550, z: 520, size: 600 },
+  { name: "NORTH", x: 9100, z: -3300, size: 760 },
+  { name: "FARMS", x: 11800, z: -1800, size: 640 },
+  { name: "EAST", x: 13200, z: -5600, size: 700 }
 ];
 
 export const mountains = [
@@ -56,9 +66,9 @@ export const mountains = [
   { x: 9600, z: -6800, h: 1500, w: 1250 }
 ];
 
-export const trees = Array.from({ length: 90 }, (_, index) => {
-  const x = -800 + (index * 347) % 11500;
-  const z = 1500 - (index * 619) % 8200;
+export const trees = Array.from({ length: 150 }, (_, index) => {
+  const x = -1200 + (index * 347) % 15500;
+  const z = 1800 - (index * 619) % 10200;
   return { x, z, h: 65 + (index % 5) * 12 };
 }).filter((tree) => Math.abs(tree.z) > 260 || tree.x < -1000 || tree.x > 11000);
 

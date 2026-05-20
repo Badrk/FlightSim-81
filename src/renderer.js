@@ -1,6 +1,6 @@
-import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.3";
-import { bearingToWaypoint } from "./flight.js?v=1.5.3";
-import { clamp, distance, signedAngle } from "./math.js?v=1.5.3";
+import { airports, CANVAS_HEIGHT as H, CANVAS_WIDTH as W, lakes, mountains, palette, river, route, towns, trees } from "./config.js?v=1.5.4";
+import { bearingToWaypoint } from "./flight.js?v=1.5.4";
+import { clamp, distance, signedAngle } from "./math.js?v=1.5.4";
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext("2d");
@@ -81,10 +81,8 @@ function drawWorld(ctx, state) {
   ctx.lineTo(W + 160, horizonY);
   ctx.stroke();
 
-  for (let x = -2000; x <= 12000; x += 700) drawLine3d(ctx, state, { x, y: 0, z: 1600 }, { x, y: 0, z: -7600 }, palette.dim, 1);
-  for (let z = 1600; z >= -7600; z -= 700) drawLine3d(ctx, state, { x: -2000, y: 0, z }, { x: 12000, y: 0, z }, palette.dim, 1);
-
   for (let i = 0; i < river.length - 1; i += 1) drawLine3d(ctx, state, { ...river[i], y: 4 }, { ...river[i + 1], y: 4 }, palette.water, 6);
+  for (const lake of lakes) drawLake(ctx, state, lake);
   drawMountains(ctx, state);
   for (const town of towns) drawTown(ctx, state, town);
   for (const tree of trees) drawTree(ctx, state, tree);
@@ -145,16 +143,51 @@ function drawRunway(ctx, state, airport) {
   const length = airport.length / 2;
   const width = airport.width / 2;
   const y = airport.elev + 2;
-  const corners = [
-    { x: airport.x - fx * length - rx * width, y, z: airport.z - fz * length - rz * width },
-    { x: airport.x + fx * length - rx * width, y, z: airport.z + fz * length - rz * width },
-    { x: airport.x + fx * length + rx * width, y, z: airport.z + fz * length + rz * width },
-    { x: airport.x - fx * length + rx * width, y, z: airport.z - fz * length + rz * width }
-  ];
-  drawPoly(ctx, state, corners, palette.runway, palette.paper);
-  for (let i = -4; i <= 4; i += 1) {
-    const c = i * 160;
-    drawLine3d(ctx, state, { x: airport.x + fx * (c - 45), y: y + 3, z: airport.z + fz * (c - 45) }, { x: airport.x + fx * (c + 45), y: y + 3, z: airport.z + fz * (c + 45) }, palette.amber, 3);
+  const step = 180;
+
+  function point(along, lateral, lift = 0) {
+    return {
+      x: airport.x + fx * along + rx * lateral,
+      y: y + lift,
+      z: airport.z + fz * along + rz * lateral
+    };
+  }
+
+  for (let along = -length; along < length; along += step) {
+    const next = Math.min(length, along + step);
+    drawPoly(ctx, state, [
+      point(along, -width),
+      point(next, -width),
+      point(next, width),
+      point(along, width)
+    ], palette.runway, null);
+    drawLine3d(ctx, state, point(along, -width, 2), point(next, -width, 2), palette.paper, 1);
+    drawLine3d(ctx, state, point(along, width, 2), point(next, width, 2), palette.paper, 1);
+  }
+
+  for (let along = -length + 120; along < length; along += 320) {
+    drawLine3d(ctx, state, point(along, 0, 4), point(Math.min(along + 110, length), 0, 4), palette.amber, 3);
+  }
+
+  drawAirportBuildings(ctx, state, airport, rx, rz, fx, fz);
+}
+
+function drawAirportBuildings(ctx, state, airport, rx, rz, fx, fz) {
+  const side = airport.width / 2 + 190;
+  const baseAlong = airport.name === "HAYES" ? -280 : 260;
+  for (let i = 0; i < 4; i += 1) {
+    const along = baseAlong + i * 130;
+    const p = toScreen(state, airport.x + fx * along + rx * side, airport.elev + 28, airport.z + fz * along + rz * side);
+    if (!p) continue;
+    const s = clamp(p.scale * 180, 4, 18);
+    ctx.fillStyle = palette.town;
+    ctx.fillRect(p.x - s, p.y - s, s * 2, s);
+  }
+  const tower = toScreen(state, airport.x + fx * (baseAlong - 170) + rx * side, airport.elev + 85, airport.z + fz * (baseAlong - 170) + rz * side);
+  if (tower) {
+    const s = clamp(tower.scale * 120, 4, 15);
+    ctx.fillStyle = palette.paper;
+    ctx.fillRect(tower.x - s / 2, tower.y - s * 2, s, s * 2);
   }
 }
 
@@ -182,6 +215,15 @@ function drawTown(ctx, state, town) {
     ctx.fillStyle = palette.town;
     ctx.fillRect(p.x - s / 2, p.y - s, s, s);
   }
+}
+
+function drawLake(ctx, state, lake) {
+  const points = [];
+  for (let i = 0; i < 14; i += 1) {
+    const a = i / 14 * Math.PI * 2;
+    points.push({ x: lake.x + Math.cos(a) * lake.rx, y: 3, z: lake.z + Math.sin(a) * lake.rz });
+  }
+  drawPoly(ctx, state, points, palette.water, "#56d7ff");
 }
 
 function drawMountains(ctx, state) {
@@ -452,7 +494,7 @@ function drawHud(ctx, state) {
 
 function drawOverlay(ctx, state) {
   const { plane } = state;
-  if (plane.state === "flying") return;
+  if (plane.state === "flying" || plane.state === "rollout") return;
   ctx.fillStyle = "rgba(2, 4, 3, 0.72)";
   ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = plane.state === "landed" ? palette.bright : palette.red;

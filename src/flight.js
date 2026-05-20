@@ -1,6 +1,6 @@
-import { airports, initialInstruction, route } from "./config.js?v=1.5.3";
-import { bearingBetween, clamp, distance, signedAngle, wrapDeg } from "./math.js?v=1.5.3";
-import { groundAltitudeAt, isOnRunway, runwayLocal, terrainHeight } from "./world.js?v=1.5.3";
+import { airports, initialInstruction, route } from "./config.js?v=1.5.4";
+import { bearingBetween, clamp, distance, signedAngle, wrapDeg } from "./math.js?v=1.5.4";
+import { groundAltitudeAt, isOnRunway, runwayLocal, terrainHeight } from "./world.js?v=1.5.4";
 
 const autopilotPath = [airports[0], ...route];
 
